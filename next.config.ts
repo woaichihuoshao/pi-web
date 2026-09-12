@@ -12,6 +12,8 @@ try {
 } catch { /* package not found, use default */ }
 
 const nextConfig: NextConfig = {
+  // dev server 与生产构建分开目录：否则 piweb-deploy 的构建会让 dev 崩掉
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   outputFileTracingRoot: configDir,
   serverExternalPackages: [
     "node-pty",
