@@ -319,6 +319,143 @@ html[data-theme="deepseek-light"],
   --state-info-border: rgba(57,100,254,0.30);
 }
 
+/* OpenAI / ChatGPT 风格（浅色）：中性色打底 + 单一 Accent + 极弱层级灰度，
+   卡片 16px 圆角 / 1px 极浅边框 / 无阴影，状态色只用极淡底色。 */
+html[data-theme="gpt-light"],
+[data-theme="gpt-light"] {
+  --bg: #ffffff;
+  --bg-panel: #f7f7f7;
+  --bg-hover: #f2f2f2;
+  --bg-selected: #f5f9ff;
+  --border: #e8e8e8;
+  --text: #0d0d0d;
+  --text-muted: #5d5d5d;
+  --text-dim: #8f8f8f;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-contrast: #ffffff;
+  --user-bg: #f7f7f7;
+  --assistant-bg: transparent;
+  --tool-bg: #f7f7f7;
+  --bg-subtle: #f7f7f7;
+  --code-block-bg: #f4f4f4;
+  --state-success: #16a34a;
+  --state-success-soft: #f2fbf5;
+  --state-success-border: #cfeeda;
+  --state-danger: #dc2626;
+  --state-danger-soft: #fff8f7;
+  --state-danger-border: #f0d2ce;
+  --state-warn: #b45309;
+  --state-warn-soft: #fffaf0;
+  --state-warn-border: #f5e2c2;
+  --state-info: #2563eb;
+  --state-info-soft: #f5f9ff;
+  --state-info-border: #cddffb;
+  --ui-radius-btn: 4096px;
+  --ui-radius-input: 10px;
+  --ui-radius-menu: 14px;
+  --ui-radius-menu-item: 8px;
+  --ui-radius-row: 8px;
+  --ui-radius-card: 16px;
+  --ui-radius-toggle: 4096px;
+  --ui-radius-composer: 24px;
+  --ui-radius-bubble: 18px;
+  --ui-bubble-padding: 10px 16px;
+  --ui-menu-padding: 6px;
+  --ui-menu-item-height: 32px;
+  --inline-code-bg: var(--code-block-bg);
+  --code-block-border: none;
+  --code-block-radius: 16px;
+  --code-block-shadow: none;
+  --code-block-header-padding: 10px 14px;
+  --code-block-header-border: none;
+  --code-block-header-font-size: 13px;
+  --code-block-lang-weight: 400;
+  --code-block-action-border: none;
+  --code-block-action-padding: 0;
+  --code-block-pre-padding: 16px;
+  --code-block-banner-bg: var(--code-block-bg);
+  --table-wrap-border: 1px solid var(--border);
+  --table-wrap-radius: 12px;
+  --table-row-border: color-mix(in srgb, var(--border) 55%, transparent);
+  --table-head-border: var(--border);
+  --table-head-bg: var(--bg-panel);
+  --table-head-weight: 600;
+  --table-cell-padding: 10px 14px;
+  --table-zebra: transparent;
+  --table-collapse: collapse;
+  --table-font-size: 0.9375em;
+  --table-last-row-border: 0;
+}
+
+/* OpenAI / ChatGPT 风格（深色）：背景非纯黑、文字非纯白 */
+html[data-theme="gpt"],
+[data-theme="gpt"] {
+  --bg: #212121;
+  --bg-panel: #2f2f2f;
+  --bg-hover: #333333;
+  --bg-selected: #2b3444;
+  --border: #3a3a3a;
+  --text: #ececec;
+  --text-muted: #b4b4b4;
+  --text-dim: #8a8a8a;
+  --accent: #60a5fa;
+  --accent-hover: #93c5fd;
+  --accent-contrast: #0d0d0d;
+  --user-bg: #2f2f2f;
+  --assistant-bg: transparent;
+  --tool-bg: #2f2f2f;
+  --bg-subtle: #2a2a2a;
+  --code-block-bg: #2a2a2a;
+  --state-success: #4ade80;
+  --state-success-soft: rgba(74, 222, 128, 0.10);
+  --state-success-border: rgba(74, 222, 128, 0.26);
+  --state-danger: #f87171;
+  --state-danger-soft: rgba(248, 113, 113, 0.12);
+  --state-danger-border: rgba(248, 113, 113, 0.28);
+  --state-warn: #fbbf24;
+  --state-warn-soft: rgba(251, 191, 36, 0.12);
+  --state-warn-border: rgba(251, 191, 36, 0.28);
+  --state-info: #60a5fa;
+  --state-info-soft: rgba(96, 165, 250, 0.14);
+  --state-info-border: rgba(96, 165, 250, 0.30);
+  --ui-radius-btn: 4096px;
+  --ui-radius-input: 10px;
+  --ui-radius-menu: 14px;
+  --ui-radius-menu-item: 8px;
+  --ui-radius-row: 8px;
+  --ui-radius-card: 16px;
+  --ui-radius-toggle: 4096px;
+  --ui-radius-composer: 24px;
+  --ui-radius-bubble: 18px;
+  --ui-bubble-padding: 10px 16px;
+  --ui-menu-padding: 6px;
+  --ui-menu-item-height: 32px;
+  --inline-code-bg: var(--code-block-bg);
+  --code-block-border: none;
+  --code-block-radius: 16px;
+  --code-block-shadow: none;
+  --code-block-header-padding: 10px 14px;
+  --code-block-header-border: none;
+  --code-block-header-font-size: 13px;
+  --code-block-lang-weight: 400;
+  --code-block-action-border: none;
+  --code-block-action-padding: 0;
+  --code-block-pre-padding: 16px;
+  --code-block-banner-bg: var(--code-block-bg);
+  --table-wrap-border: 1px solid var(--border);
+  --table-wrap-radius: 12px;
+  --table-row-border: color-mix(in srgb, var(--border) 55%, transparent);
+  --table-head-border: var(--border);
+  --table-head-bg: var(--bg-panel);
+  --table-head-weight: 600;
+  --table-cell-padding: 10px 14px;
+  --table-zebra: transparent;
+  --table-collapse: collapse;
+  --table-font-size: 0.9375em;
+  --table-last-row-border: 0;
+}
+
 /* 官网字体栈以 Inter 开头（chat.deepseek.com: "Inter", system-ui, -apple-system,
    BlinkMacSystemFont, "Segoe UI", Roboto…）；仅在 DeepSeek 主题下生效。 */
 [data-theme="deepseek"] body,

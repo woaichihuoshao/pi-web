@@ -6,6 +6,8 @@ export const THEME_OPTIONS = [
   { id: "pine", label: "settings.themePine" },
   { id: "deepseek", label: "settings.themeDeepSeek" },
   { id: "deepseek-light", label: "settings.themeDeepSeekLight" },
+  { id: "gpt", label: "settings.themeGpt" },
+  { id: "gpt-light", label: "settings.themeGptLight" },
   { id: "auto", label: "settings.themeSystem" },
 ] as const;
 
@@ -17,7 +19,7 @@ export function isThemePreference(value: unknown): value is ThemePreference {
 }
 
 /** 暗色主题清单；首屏脚本和 isDarkTheme 共用它，避免两边部署时走调。 */
-export const DARK_THEMES = ["dark", "pine", "deepseek"] as const satisfies readonly ResolvedTheme[];
+export const DARK_THEMES = ["dark", "pine", "deepseek", "gpt"] as const satisfies readonly ResolvedTheme[];
 
 export function isDarkTheme(theme: ResolvedTheme): boolean {
   return (DARK_THEMES as readonly string[]).includes(theme);

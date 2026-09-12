@@ -29,6 +29,8 @@ export const zhCNLocale: LocalePlugin = {
     "settings.themePine": "松夜",
     "settings.themeDeepSeek": "深蓝",
     "settings.themeDeepSeekLight": "晴蓝",
+    "settings.themeGpt": "OpenAI 深色",
+    "settings.themeGptLight": "OpenAI 浅色",
     "settings.themeSystem": "跟随系统",
     "settings.thinkingDisplay": "思考过程显示",
     "settings.thinkingDisplayDescription": "选择消息加载时模型思考块是否默认展开。",

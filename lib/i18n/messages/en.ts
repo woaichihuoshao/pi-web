@@ -29,6 +29,8 @@ export const enLocale: LocalePlugin = {
     "settings.themePine": "Pine",
     "settings.themeDeepSeek": "DeepSeek",
     "settings.themeDeepSeekLight": "DeepSeek Light",
+    "settings.themeGpt": "OpenAI Dark",
+    "settings.themeGptLight": "OpenAI Light",
     "settings.themeSystem": "System",
     "settings.thinkingDisplay": "Thinking display",
     "settings.thinkingDisplayDescription": "Choose whether model reasoning blocks are expanded when messages load.",
