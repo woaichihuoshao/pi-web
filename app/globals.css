@@ -423,14 +423,10 @@ html[data-theme="deepseek-light"],
   to { background-position: -200% center; }
 }
 
+/* 思考行的流光动画已去掉（用户反馈"一闪一闪"）：保持静态的次要色文字 */
 [data-theme="deepseek"] .deepseek-thinking-shimmer,
 [data-theme="deepseek-light"] .deepseek-thinking-shimmer {
-  background: linear-gradient(90deg, var(--text-dim) 30%, var(--text) 50%, var(--text-dim) 70%);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: deepseek-thinking-shimmer 2.4s linear infinite;
+  color: var(--text-dim);
 }
 
 /* 对话正文排版按官网 markdown token 的比例
@@ -2587,12 +2583,10 @@ span.token.table {
 
 .trace-group-body {
   flex-direction: column;
-  /* 工具行之间 4px；组头 → 展开内容 8px */
   gap: 4px;
   margin-top: 8px;
   margin-left: 2px;
-  /* 左侧时间轴细轨：把展开后的动作串成一条 Agent 执行轨迹
-     （状态节点就是各行左侧的 ✓ / ● / × / ◇ 图标） */
+  /* 左侧时间轴细轨：把展开后的动作串成一条 Agent 执行轨迹 */
   border-left: 1px solid var(--border-subtle);
   padding-left: 14px;
   padding-bottom: 2px;
