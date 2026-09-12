@@ -73,6 +73,7 @@ app/api/
   skills/install/route.ts         POST install skills through npx skills add
   skills/search/route.ts          GET/POST skills.sh search
   subagents/settings/route.ts     GET/PUT built-in subagent feature setting
+  transcribe/route.ts             POST raw audio — local speech-to-text for the composer
   worktrees/route.ts              GET/POST/DELETE git worktrees
 
 lib/
@@ -88,6 +89,10 @@ lib/
   subagent-settings.ts  read/write ~/.pi/agent/agents/settings.json
   tool-presets.ts     PRESET_NONE/READ_ONLY/DEFAULT/FULL + getPresetFromTools()
   tool-preset-preference.ts  browser-persisted default for fresh sessions
+  transcribe.ts        bounded audio body, temp file, serialized helper spawn
+  transcribe-command.ts content-type → temporary-file extension, transcript parsing
+  terminal-font.ts     Nerd Font fallbacks for the workspace terminal font stack
+  voice-input.ts       recorder mime choice, caret insertion, failure codes
   types.ts            shared TypeScript types
   normalize.ts        normalizeToolCalls() — field name mismatch between file format and our types
   worktree.ts         project/worktree resolution and git worktree operations
@@ -109,6 +114,7 @@ components/
   FileIcons.tsx       file icon helpers
   FileViewer.tsx      file content in a tab
   TabBar.tsx          tab bar (Chat + open file tabs)
+  VoiceInputButton.tsx self-contained dictation control (mic button + inline timer)
 
 hooks/
   useAgentSession.ts  messages + streaming + SSE + fork/navigate/reconciliation logic
@@ -116,6 +122,7 @@ hooks/
   useDragDrop.ts      shared drag/drop state
   useIsMobile.ts      responsive breakpoint hook
   useTheme.ts         theme state
+  useVoiceInput.ts    microphone recording + /api/transcribe round trip
 ```
 
 ---
@@ -200,6 +207,13 @@ Newer pi emits `compaction_start` / `compaction_end`; older versions emitted `au
 - OAuth/device-code/manual-code flows are streamed by `GET /api/auth/login/[provider]`; manual code responses POST back with a short-lived token stored in `globalThis.__piLoginCallbacks`.
 - API-key routes store and remove keys through `AuthStorage`. Status endpoints must never return the raw key.
 - The model test route is `app/api/models-config/test/route.ts`; `app/api/models/test/` is not a real route.
+
+### Voice input (`hooks/useVoiceInput.ts`)
+- Transcription runs out of process through `scripts/transcribe-audio.mjs` because `transcribe-cpp` is a koffi FFI binding over `libtranscribe.so` and a loaded model is hundreds of megabytes. Never import `transcribe-cpp` from the server.
+- The helper reads `~/.pi/agent/pi-transcribe.json` directly — the file the `pi-transcribe` TUI extension writes — instead of importing that extension's TypeScript (`settings.ts` pulls in the agent SDK, `runtime.ts` pulls in `pi-tui`, and Node's type stripping rejects its parameter properties). Change the model with `/transcribe` in the TUI and both interfaces follow.
+- Runs are serialized through `globalThis.__piTranscribeQueue`; each helper process loads its own model copy, so parallel requests multiply memory instead of sharing it.
+- The helper refuses recordings longer than the model's `maxAudioMs` with exit code 6, which `lib/transcribe.ts` returns as `413`; exit code 4 maps to `422` and 3 to `503`.
+- The composer keeps the feature inside `components/VoiceInputButton.tsx`, `hooks/useVoiceInput.ts` and `lib/voice-input.ts`, so re-applying it after an upstream merge stays a single insertion into `ChatInput.tsx`.
 
 ### Completion sound
 - `hooks/useAudio.ts` stores the toggle in `localStorage` as `pi-sound-enabled` and reuses one `AudioContext`.

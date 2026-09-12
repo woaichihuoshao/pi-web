@@ -19,6 +19,7 @@
   },
   "files": [
     "bin",
+    "scripts",
     ".next",
     "!.next/cache",
     "!.next/dev",

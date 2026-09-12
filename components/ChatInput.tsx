@@ -28,6 +28,7 @@ import { useI18n } from "@/hooks/useI18n";
 import { useChatAppearance } from "@/hooks/useChatAppearance";
 import type { ToolPreset } from "@/lib/tool-presets";
 import { ModelSelector, type ModelSelectorOption } from "./ModelSelector";
+import { VoiceInputButton } from "./VoiceInputButton";
 
 export { filterModelOptions } from "./ModelSelector";
 
@@ -2619,6 +2620,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
               </button>
             )}
 
+            <VoiceInputButton textareaRef={textareaRef} value={value} setValue={setValue} />
             {onSoundToggle !== undefined && (
               <button
                 onClick={onSoundToggle}
