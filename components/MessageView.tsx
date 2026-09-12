@@ -1,12 +1,13 @@
 "use client";
 
-import { memo, useState, useRef, useEffect, useMemo } from "react";
+import { memo, useState, useRef, useEffect, useMemo , type ReactNode } from "react";
 import { MarkdownBody } from "./MarkdownBody";
 import { ImagePreview } from "./ImagePreview";
 import { useTheme } from "@/hooks/useTheme";
 import { usesDeepSeekBrand } from "@/lib/brand-theme";
 import { copyText } from "@/lib/clipboard";
 import { useI18n } from "@/hooks/useI18n";
+import type { TranslationParams } from "@/lib/i18n/types";
 import { parseCompactionSummary } from "@/lib/compaction-summary";
 import { getAssistantErrorMessage, getThinkingPreview, isEmptyThinkingBlock } from "@/lib/message-display";
 import { parseUnifiedPatch, type SplitDiffCell } from "@/lib/patch";
@@ -631,6 +632,22 @@ function AssistantMessageView({
     .map((block, originalIndex) => ({ block, originalIndex }))
     .filter(({ block }) => !isEmptyThinkingBlock(block, { isStreaming })), [message.content, isStreaming]);
   const blocks = useMemo(() => blockItems.map(({ block }) => block), [blockItems]);
+
+  // 三层架构：正文直出，连续的过程块（思考/工具）合并成一行摘要
+  const segments = useMemo(() => {
+    const out: Array<{ kind: "block"; item: (typeof blockItems)[number] } | { kind: "process"; items: (typeof blockItems)[number][] }> = [];
+    for (const item of blockItems) {
+      const isProcess = item.block.type === "thinking" || item.block.type === "toolCall";
+      if (!isProcess) {
+        out.push({ kind: "block", item });
+        continue;
+      }
+      const last = out[out.length - 1];
+      if (last && last.kind === "process") last.items.push(item);
+      else out.push({ kind: "process", items: [item] });
+    }
+    return out;
+  }, [blockItems]);
   const providerError = getAssistantErrorMessage(message, { isStreaming });
   const [hovered, setHovered] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -802,9 +819,31 @@ function AssistantMessageView({
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        {blockItems.map(({ block, originalIndex }) => (
-          <BlockView key={`${entryId ?? "stream"}-${originalIndex}`} block={block} searchTarget={block === searchBlock} toolResults={toolResults} isStreaming={isStreaming} streamingDuration={streamingDurations.get(originalIndex) ?? (block.type === "thinking" ? thinkingDurationFromFile : undefined)} toolCallDurations={toolCallDurations} cwd={cwd} onOpenFile={onOpenFile} onOpenSession={onOpenSession} sessionId={sessionId} entryId={entryId} blockIndex={originalIndex} />
-        ))}
+        {segments.map((segment) => {
+          const renderItem = ({ block, originalIndex }: { block: AssistantContentBlock; originalIndex: number }) => (
+            <BlockView
+              key={`${entryId ?? "stream"}-${originalIndex}`}
+              block={block}
+              searchTarget={block === searchBlock}
+              toolResults={toolResults}
+              isStreaming={isStreaming}
+              streamingDuration={streamingDurations.get(originalIndex) ?? (block.type === "thinking" ? thinkingDurationFromFile : undefined)}
+              toolCallDurations={toolCallDurations}
+              cwd={cwd}
+              onOpenFile={onOpenFile}
+              onOpenSession={onOpenSession}
+              sessionId={sessionId}
+              entryId={entryId}
+              blockIndex={originalIndex}
+            />
+          );
+          if (segment.kind === "block") return renderItem(segment.item);
+          return (
+            <ProcessGroup key={`group-${entryId ?? "stream"}-${segment.items[0].originalIndex}`} summary={summarizeProcess(segment.items, { t, toolCallDurations, streamingDurations, thinkingDurationFromFile })}>
+              {segment.items.map(renderItem)}
+            </ProcessGroup>
+          );
+        })}
       </div>
 
       {providerError && (
@@ -1005,6 +1044,72 @@ function ReasoningStatusIcon() {
     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--text-dim)" strokeWidth="1.5" strokeLinejoin="round" style={{ flexShrink: 0 }} aria-hidden="true">
       <rect x="2.9" y="2.9" width="6.2" height="6.2" rx="1" transform="rotate(45 6 6)" />
     </svg>
+  );
+}
+
+const TRACE_EDIT_TOOLS = new Set(["edit", "write", "multiedit", "patch", "apply_patch", "create_file", "str_replace"]);
+const TRACE_COMMAND_TOOLS = new Set(["bash", "shell", "process", "terminal"]);
+const TRACE_READ_TOOLS = new Set(["read", "grep", "find", "glob", "ls", "list", "search"]);
+
+/** 三层架构第二层：把一段连续的过程块折叠成一行摘要（正文仍是第一层） */
+function summarizeProcess(
+  items: Array<{ block: AssistantContentBlock; originalIndex: number }>,
+  ctx: {
+    t: (key: string, params?: TranslationParams) => string;
+    toolCallDurations?: Map<string, number>;
+    streamingDurations: Map<number, number>;
+    thinkingDurationFromFile?: number;
+  },
+): string {
+  let thinkingSeconds = 0;
+  let edits = 0;
+  let commands = 0;
+  let reads = 0;
+  let other = 0;
+  for (const { block, originalIndex } of items) {
+    if (block.type === "thinking") {
+      thinkingSeconds += ctx.streamingDurations.get(originalIndex) ?? ctx.thinkingDurationFromFile ?? 0;
+      continue;
+    }
+    if (block.type !== "toolCall") continue;
+    const name = block.toolName;
+    if (TRACE_EDIT_TOOLS.has(name)) edits += 1;
+    else if (TRACE_COMMAND_TOOLS.has(name)) commands += 1;
+    else if (TRACE_READ_TOOLS.has(name)) reads += 1;
+    else other += 1;
+  }
+  const parts: string[] = [];
+  if (thinkingSeconds > 0) parts.push(ctx.t("trace.thoughtForSeconds", { seconds: thinkingSeconds }));
+  if (edits > 0) parts.push(ctx.t("trace.editedFiles", { count: edits }));
+  if (commands > 0) parts.push(ctx.t("trace.ranCommands", { count: commands }));
+  if (reads > 0) parts.push(ctx.t("trace.readFiles", { count: reads }));
+  if (other > 0) parts.push(ctx.t("trace.actions", { count: other }));
+  return parts.join(" · ");
+}
+
+function ProcessGroup({ summary, children }: { summary: string; children: ReactNode }) {
+  const [open, setOpen] = useState(false);
+  const { t } = useI18n();
+  return (
+    <div>
+      <button
+        type="button"
+        className="trace-group-toggle"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--text-dim)" strokeWidth="1.5" strokeLinejoin="round" style={{ flexShrink: 0 }} aria-hidden="true">
+          <rect x="2.9" y="2.9" width="6.2" height="6.2" rx="1" transform="rotate(45 6 6)" />
+        </svg>
+        <span className="trace-group-summary">{summary}</span>
+        <span className="trace-group-hint">{open ? t("trace.collapse") : t("trace.expand")}</span>
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--text-dim)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.15s" }} aria-hidden="true">
+          <polyline points="2 3.5 5 6.5 8 3.5" />
+        </svg>
+      </button>
+      {/* 保持渲染（保持既有测试与折叠状态下的 DOM 结构），仅用 CSS 隐藏 */}
+      <div className="trace-group-body" style={{ display: open ? "flex" : "none" }}>{children}</div>
+    </div>
   );
 }
 

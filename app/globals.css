@@ -2543,3 +2543,43 @@ span.token.table {
   color: var(--code-block-text);
   tab-size: 2;
 }
+
+/* 三层架构第二层：过程摘要行（无边框、无 Card、无底色） */
+.trace-group-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 36px;
+  padding: 6px 2px;
+  border: 0;
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 14px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.trace-group-toggle:hover {
+  color: var(--text-muted);
+}
+
+.trace-group-summary {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.trace-group-hint {
+  flex-shrink: 0;
+  color: var(--text-dim);
+}
+
+.trace-group-body {
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+  padding-left: 4px;
+}
