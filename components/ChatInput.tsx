@@ -1767,7 +1767,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                 background: "var(--bg)",
                 border: "1px solid var(--border)",
                 borderRadius: 8,
-                boxShadow: "0 -6px 20px rgba(0,0,0,0.12)",
+                boxShadow: "var(--shadow-popover)",
                 overflow: "hidden",
                 maxHeight: "min(44vh, 360px)",
               }}
@@ -1854,7 +1854,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                 background: "var(--bg)",
                 border: "1px solid var(--border)",
                 borderRadius: 8,
-                boxShadow: "0 -6px 20px rgba(0,0,0,0.12)",
+                boxShadow: "var(--shadow-popover)",
                 overflow: "hidden",
                 boxSizing: "border-box",
                 display: "flex",
@@ -2013,7 +2013,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                   background: "var(--bg)",
                   border: "1px solid var(--border)",
                   borderRadius: 8,
-                  boxShadow: "0 -6px 20px rgba(0,0,0,0.12)",
+                  boxShadow: "var(--shadow-popover)",
                   overflow: "hidden",
                   boxSizing: "border-box",
                   display: "flex",
@@ -2110,7 +2110,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                 : "color-mix(in srgb, var(--border) 70%, transparent)"}`,
               borderRadius: compact ? 0 : "var(--ui-radius-composer)",
               padding: compact ? 0 : "10px 10px 10px 14px",
-              boxShadow: compact ? "none" : "0 1px 2px rgba(15,23,42,0.04), 0 8px 24px -12px rgba(15,23,42,0.10)",
+              boxShadow: compact ? "none" : "var(--shadow-composer)",
               transition: "border-color 0.15s, background 0.15s, box-shadow 0.15s",
             } as React.CSSProperties}
           >
@@ -2393,7 +2393,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                 border: "1px solid color-mix(in srgb, var(--border) 72%, transparent)",
                 borderRadius: 10,
                 background: "color-mix(in srgb, var(--bg-panel) 92%, var(--bg))",
-                boxShadow: "0 8px 24px rgba(0,0,0,0.14)",
+                boxShadow: "var(--shadow-popover)",
                 backdropFilter: "blur(10px)",
               } : null),
             }}>
@@ -2440,7 +2440,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                     position: "absolute", bottom: "calc(100% + 6px)",
                     ...(isMobile ? { left: 0 } : { right: 0 }),
                     zIndex: 100, background: "var(--bg)", border: "1px solid var(--border)",
-                    borderRadius: 8, boxShadow: "0 -4px 16px rgba(0,0,0,0.10)",
+                    borderRadius: 8, boxShadow: "var(--shadow-popover)",
                     overflow: "hidden", minWidth: 180,
                   }}>
                     {THINKING_LEVELS.filter((lvl) => {
@@ -2528,7 +2528,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
                     right: isMobile ? undefined : 0,
                     left: isMobile ? 0 : undefined,
                     zIndex: 100, background: "var(--bg)", border: "1px solid var(--border)",
-                    borderRadius: 8, boxShadow: "0 -4px 16px rgba(0,0,0,0.10)",
+                    borderRadius: 8, boxShadow: "var(--shadow-popover)",
                     overflow: "hidden", minWidth: 120,
                   }}>
                     {TOOL_PRESETS.map((lvl) => {

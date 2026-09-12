@@ -44,7 +44,7 @@ export function ProjectTrustDialog({
           border: "1px solid var(--border)",
           borderRadius: 8,
           background: "var(--bg-panel)",
-          boxShadow: "0 12px 36px rgba(0,0,0,0.24)",
+          boxShadow: "var(--shadow-dialog)",
           overflow: "hidden",
         }}
       >

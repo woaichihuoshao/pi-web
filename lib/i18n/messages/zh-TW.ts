@@ -29,8 +29,6 @@ export const zhTWLocale: LocalePlugin = {
     "settings.themePine": "松夜",
     "settings.themeDeepSeek": "深藍",
     "settings.themeDeepSeekLight": "晴藍",
-    "settings.themeGpt": "OpenAI 深色",
-    "settings.themeGptLight": "OpenAI 淺色",
     "settings.themeSystem": "跟隨系統",
     "settings.thinkingDisplay": "思考過程顯示",
     "settings.thinkingDisplayDescription": "選擇訊息載入時模型思考區塊是否預設展開。",

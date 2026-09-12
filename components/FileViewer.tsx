@@ -581,7 +581,7 @@ function ImageViewer({ filePath, cwd, sourceSessionId, watchEnabled = true }: Pr
               maxWidth: "100%",
               maxHeight: "100%",
               objectFit: "contain",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+              boxShadow: "var(--shadow-popover)",
             }}
           />
         )}

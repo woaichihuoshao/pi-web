@@ -1171,7 +1171,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
               background: "var(--bg)",
               border: "1px solid var(--border)",
               borderRadius: 8,
-              boxShadow: "0 6px 20px rgba(0,0,0,0.10)",
+              boxShadow: "var(--shadow-popover)",
               overflow: "hidden",
             }}
           >
@@ -1395,7 +1395,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
                   background: "var(--bg)",
                   border: "1px solid var(--border)",
                   borderRadius: 8,
-                  boxShadow: "0 6px 20px rgba(0,0,0,0.10)",
+                  boxShadow: "var(--shadow-popover)",
                   overflow: "hidden",
                 }}
               >

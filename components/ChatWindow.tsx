@@ -1258,7 +1258,7 @@ export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initi
             border: "1px solid var(--border)",
             borderRadius: 6,
             background: "var(--bg)",
-            boxShadow: "0 2px 10px rgba(0,0,0,0.12)",
+            boxShadow: "var(--shadow-popover)",
           }}
         >
           {quoteInputOpen ? (
@@ -1534,7 +1534,7 @@ function ExtensionDialog({
             border: "1px solid var(--border)",
             borderRadius: 8,
             background: "var(--bg)",
-            boxShadow: "0 12px 32px rgba(0,0,0,0.18)",
+            boxShadow: "var(--shadow-dialog)",
             color: "var(--text)",
             cursor: "pointer",
             textAlign: "left",
@@ -1569,7 +1569,7 @@ function ExtensionDialog({
           border: "1px solid var(--border)",
           borderRadius: 8,
           background: "var(--bg)",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.28)",
+          boxShadow: "var(--shadow-dialog)",
           overflow: "hidden",
         }}
       >
@@ -1812,7 +1812,7 @@ function ExtensionCustomPanel({
             border: "1px solid var(--border)",
             borderRadius: 8,
             background: "var(--bg)",
-            boxShadow: "0 12px 32px rgba(0,0,0,0.18)",
+            boxShadow: "var(--shadow-dialog)",
             color: "var(--text)",
             cursor: "pointer",
             textAlign: "left",
@@ -1849,7 +1849,7 @@ function ExtensionCustomPanel({
           border: "1px solid var(--border)",
           borderRadius: 8,
           background: "var(--bg)",
-          boxShadow: "0 20px 60px rgba(0,0,0,0.28)",
+          boxShadow: "var(--shadow-dialog)",
           overflow: "hidden",
           outline: "none",
         }}

@@ -38,6 +38,9 @@
   --tool-bg: #f9fafb;
   --bg-subtle: rgba(0,0,0,0.03);
   /* 组件结构 token：默认 = pi-web 现有观感，DeepSeek 主题按官网真值覆盖 */
+  --shadow-popover: 0 4px 16px rgba(0,0,0,0.10);
+  --shadow-dialog: 0 12px 32px rgba(0,0,0,0.18);
+  --shadow-composer: 0 1px 2px rgba(15,23,42,0.04), 0 8px 24px -12px rgba(15,23,42,0.10);
   --code-block-bg: var(--bg);
   --code-block-banner-bg: var(--bg-panel);
   --code-block-border: 1px solid var(--border);
@@ -208,6 +211,10 @@ html[data-theme="deepseek"],
   /* 官网表格：无外框/无竖线/无表头底色/无斑马纹；表头行线 l3、数据行线 l2、首列左对齐正文 */
   /* 官网代码块：底 #1B1B1C、头部 #2C2C2E（无分隔线、无外框）、头部 9px 14px / 13px、
      复制按钮无边框、内容区 padding 16px */
+  /* 极轻阴影（原则：阴影默认没有或极轻，不做"营销卡片"那种大投影） */
+  --shadow-popover: 0 2px 8px rgba(0,0,0,0.32);
+  --shadow-dialog: 0 6px 20px rgba(0,0,0,0.40);
+  --shadow-composer: none;
   --inline-code-bg: #2c2c2e;
   --code-block-bg: #1b1b1c;
   --code-block-banner-bg: #2c2c2e;
@@ -235,16 +242,16 @@ html[data-theme="deepseek"],
   /* 官网 state token：success green-500、error red-400、warn amber-500/600 */
   --state-success: #22c55e;
   --state-success-soft: rgba(34,197,94,0.10);
-  --state-success-border: rgba(34,197,94,0.34);
+  --state-success-border: rgba(34,197,94,0.22);
   --state-danger: #f25a5a;
   --state-danger-soft: rgba(242,90,90,0.15);
-  --state-danger-border: rgba(242,90,90,0.40);
+  --state-danger-border: rgba(242,90,90,0.26);
   --state-warn: #f59e0b;
   --state-warn-soft: rgba(245,158,11,0.14);
-  --state-warn-border: rgba(245,158,11,0.40);
+  --state-warn-border: rgba(245,158,11,0.26);
   --state-info: #5686fe;
   --state-info-soft: rgba(86,134,254,0.14);
-  --state-info-border: rgba(86,134,254,0.38);
+  --state-info-border: rgba(86,134,254,0.24);
 }
 
 /* DeepSeek 晴蓝：亮色 token
@@ -281,6 +288,9 @@ html[data-theme="deepseek-light"],
   --ui-bubble-padding: 10px 16px;
   --ui-menu-padding: 4px;
   --ui-menu-item-height: 24px;
+  --shadow-popover: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-dialog: 0 6px 20px rgba(0,0,0,0.10);
+  --shadow-composer: none;
   --inline-code-bg: #ebeef2;
   --code-block-bg: #f9fafb;
   --code-block-banner-bg: #f9fafb;
@@ -307,160 +317,16 @@ html[data-theme="deepseek-light"],
   --table-last-row-border: 1px solid var(--table-row-border);
   --state-success: #22c55e;
   --state-success-soft: rgba(34,197,94,0.08);
-  --state-success-border: rgba(34,197,94,0.30);
+  --state-success-border: rgba(34,197,94,0.20);
   --state-danger: #ec1313;
   --state-danger-soft: rgba(236,19,19,0.05);
-  --state-danger-border: rgba(236,19,19,0.28);
+  --state-danger-border: rgba(236,19,19,0.20);
   --state-warn: #dd8629;
   --state-warn-soft: rgba(245,158,11,0.10);
-  --state-warn-border: rgba(245,158,11,0.34);
+  --state-warn-border: rgba(245,158,11,0.22);
   --state-info: #3964fe;
   --state-info-soft: rgba(57,100,254,0.08);
-  --state-info-border: rgba(57,100,254,0.30);
-}
-
-/* OpenAI / ChatGPT 风格（浅色）：中性色打底 + 单一 Accent + 极弱层级灰度，
-   卡片 16px 圆角 / 1px 极浅边框 / 无阴影，状态色只用极淡底色。 */
-html[data-theme="gpt-light"],
-[data-theme="gpt-light"] {
-  --bg: #ffffff;
-  --bg-panel: #f7f7f7;
-  --bg-hover: #f2f2f2;
-  --bg-selected: #f5f9ff;
-  --border: #e8e8e8;
-  --text: #0d0d0d;
-  --text-muted: #5d5d5d;
-  --text-dim: #8f8f8f;
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
-  --accent-contrast: #ffffff;
-  --user-bg: #f7f7f7;
-  --assistant-bg: transparent;
-  --tool-bg: #f7f7f7;
-  --bg-subtle: #f7f7f7;
-  --code-block-bg: #f4f4f4;
-  --state-success: #16a34a;
-  --state-success-soft: #f2fbf5;
-  --state-success-border: #cfeeda;
-  --state-danger: #dc2626;
-  --state-danger-soft: #fff8f7;
-  --state-danger-border: #f0d2ce;
-  --state-warn: #b45309;
-  --state-warn-soft: #fffaf0;
-  --state-warn-border: #f5e2c2;
-  --state-info: #2563eb;
-  --state-info-soft: #f5f9ff;
-  --state-info-border: #cddffb;
-  --ui-radius-btn: 4096px;
-  --ui-radius-input: 10px;
-  --ui-radius-menu: 14px;
-  --ui-radius-menu-item: 8px;
-  --ui-radius-row: 8px;
-  --ui-radius-card: 16px;
-  --ui-radius-toggle: 4096px;
-  --ui-radius-composer: 24px;
-  --ui-radius-bubble: 18px;
-  --ui-bubble-padding: 10px 16px;
-  --ui-menu-padding: 6px;
-  --ui-menu-item-height: 32px;
-  --inline-code-bg: var(--code-block-bg);
-  --code-block-border: none;
-  --code-block-radius: 16px;
-  --code-block-shadow: none;
-  --code-block-header-padding: 10px 14px;
-  --code-block-header-border: none;
-  --code-block-header-font-size: 13px;
-  --code-block-lang-weight: 400;
-  --code-block-action-border: none;
-  --code-block-action-padding: 0;
-  --code-block-pre-padding: 16px;
-  --code-block-banner-bg: var(--code-block-bg);
-  --table-wrap-border: 1px solid var(--border);
-  --table-wrap-radius: 12px;
-  --table-row-border: color-mix(in srgb, var(--border) 55%, transparent);
-  --table-head-border: var(--border);
-  --table-head-bg: var(--bg-panel);
-  --table-head-weight: 600;
-  --table-cell-padding: 10px 14px;
-  --table-zebra: transparent;
-  --table-collapse: collapse;
-  --table-font-size: 0.9375em;
-  --table-last-row-border: 0;
-}
-
-/* OpenAI / ChatGPT 风格（深色）：背景非纯黑、文字非纯白 */
-html[data-theme="gpt"],
-[data-theme="gpt"] {
-  --bg: #212121;
-  --bg-panel: #2f2f2f;
-  --bg-hover: #333333;
-  --bg-selected: #2b3444;
-  --border: #3a3a3a;
-  --text: #ececec;
-  --text-muted: #b4b4b4;
-  --text-dim: #8a8a8a;
-  --accent: #60a5fa;
-  --accent-hover: #93c5fd;
-  --accent-contrast: #0d0d0d;
-  --user-bg: #2f2f2f;
-  --assistant-bg: transparent;
-  --tool-bg: #2f2f2f;
-  --bg-subtle: #2a2a2a;
-  --code-block-bg: #2a2a2a;
-  --state-success: #4ade80;
-  --state-success-soft: rgba(74, 222, 128, 0.10);
-  --state-success-border: rgba(74, 222, 128, 0.26);
-  --state-danger: #f87171;
-  --state-danger-soft: rgba(248, 113, 113, 0.12);
-  --state-danger-border: rgba(248, 113, 113, 0.28);
-  --state-warn: #fbbf24;
-  --state-warn-soft: rgba(251, 191, 36, 0.12);
-  --state-warn-border: rgba(251, 191, 36, 0.28);
-  --state-info: #60a5fa;
-  --state-info-soft: rgba(96, 165, 250, 0.14);
-  --state-info-border: rgba(96, 165, 250, 0.30);
-  --ui-radius-btn: 4096px;
-  --ui-radius-input: 10px;
-  --ui-radius-menu: 14px;
-  --ui-radius-menu-item: 8px;
-  --ui-radius-row: 8px;
-  --ui-radius-card: 16px;
-  --ui-radius-toggle: 4096px;
-  --ui-radius-composer: 24px;
-  --ui-radius-bubble: 18px;
-  --ui-bubble-padding: 10px 16px;
-  --ui-menu-padding: 6px;
-  --ui-menu-item-height: 32px;
-  --inline-code-bg: var(--code-block-bg);
-  --code-block-border: none;
-  --code-block-radius: 16px;
-  --code-block-shadow: none;
-  --code-block-header-padding: 10px 14px;
-  --code-block-header-border: none;
-  --code-block-header-font-size: 13px;
-  --code-block-lang-weight: 400;
-  --code-block-action-border: none;
-  --code-block-action-padding: 0;
-  --code-block-pre-padding: 16px;
-  --code-block-banner-bg: var(--code-block-bg);
-  --table-wrap-border: 1px solid var(--border);
-  --table-wrap-radius: 12px;
-  --table-row-border: color-mix(in srgb, var(--border) 55%, transparent);
-  --table-head-border: var(--border);
-  --table-head-bg: var(--bg-panel);
-  --table-head-weight: 600;
-  --table-cell-padding: 10px 14px;
-  --table-zebra: transparent;
-  --table-collapse: collapse;
-  --table-font-size: 0.9375em;
-  --table-last-row-border: 0;
-}
-
-/* 官网字体栈以 Inter 开头（chat.deepseek.com: "Inter", system-ui, -apple-system,
-   BlinkMacSystemFont, "Segoe UI", Roboto…）；仅在 DeepSeek 主题下生效。 */
-[data-theme="deepseek"] body,
-[data-theme="deepseek-light"] body {
-  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+  --state-info-border: rgba(57,100,254,0.20);
 }
 
 /* DeepSeek 主题：圆角按官网 token（代码块 12px、内联代码 6px） */
@@ -688,13 +554,13 @@ body {
   border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
   border-radius: 14px;
   background: var(--bg);
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px -12px rgba(15, 23, 42, 0.10);
+  box-shadow: var(--shadow-composer);
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .web-login-composer:focus-within {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent), 0 8px 24px -12px rgba(15, 23, 42, 0.10);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent), var(--shadow-composer);
 }
 
 .web-login-label {

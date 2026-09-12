@@ -245,7 +245,7 @@ export function ModelSelector({
               border: "1px solid var(--border)",
               borderRadius: "var(--ui-radius-menu)",
               background: "var(--bg)",
-              boxShadow: openAbove ? "0 -4px 16px rgba(0,0,0,0.10)" : "0 4px 16px rgba(0,0,0,0.10)",
+              boxShadow: openAbove ? "var(--shadow-popover)" : "var(--shadow-popover)",
             }}
           >
             {showFilter && (
