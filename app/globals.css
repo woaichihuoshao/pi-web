@@ -2497,7 +2497,7 @@ span.token.table {
 }
 
 /* 代码块身份：语言栏高 46px、语言名 14px/500 主文字色（不是灰色小字）+ </> 图标 */
-:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-code-header {
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-code-header:not(.markdown-code-header--lite) {
   height: 46px;
   border-radius: var(--code-block-radius) var(--code-block-radius) 0 0;
 }
