@@ -61,9 +61,10 @@ test("previews the first thinking line and reveals the full text with the saved 
         }),
       ));
       assert.match(html, new RegExp(`aria-expanded="${expanded}"`));
-      assert.equal((html.match(/>[^<]*Independent reasoning[^<]*</g) ?? []).length, 1);
+      // 标题行始终显示首行预览；展开时正文另在详情区（因此可能同时出现）
+      assert.match(html, /class="agent-action-title">[^<]*Independent reasoning/);
       assert.equal(html.includes("Detailed second line."), expanded);
-      assert.match(html, /aria-label="Thinking: /);
+      assert.match(html, /aria-label="Reasoning: /);
       assert.match(html, /3s/);
     }
   } finally {
@@ -163,8 +164,9 @@ test("renders subagents as standard tool calls with only an extra session button
     onOpenSession() {},
   });
 
-  assert.match(html, /border:1px solid var\(--tool-row-border\)/);
-  assert.match(html, /class="agent-action-row"/);
+  assert.match(html, /class="agent-action(?=[ "])/);
+  assert.match(html, /class="agent-action-head"/);
+  assert.match(html, /class="agent-action-head"/);
   assert.match(html, /stroke="var\(--state-success\)"/);
   assert.match(html, />Agent</);
   assert.match(html, />Explore</);

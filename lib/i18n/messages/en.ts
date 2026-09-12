@@ -405,6 +405,7 @@ export const enLocale: LocalePlugin = {
     "chat.disableSound": "Disable completion sound",
     "chat.enableSound": "Enable completion sound",
     "chat.thoughtFor": "Thought for {seconds}s",
+    "chat.reasoning": "Reasoning",
     "chat.voiceStart": "Start voice input",
     "chat.voiceStop": "Stop recording and transcribe",
     "chat.voiceRecording": "Recording",

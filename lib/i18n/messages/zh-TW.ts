@@ -405,6 +405,7 @@ export const zhTWLocale: LocalePlugin = {
     "chat.disableSound": "關閉完成提示音",
     "chat.enableSound": "開啟完成提示音",
     "chat.thoughtFor": "已深度思考（用時 {seconds} 秒）",
+    "chat.reasoning": "深度思考",
     "chat.voiceStart": "開始語音輸入",
     "chat.voiceStop": "停止錄音並轉寫",
     "chat.voiceRecording": "錄音中",

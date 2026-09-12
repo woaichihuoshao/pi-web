@@ -1,10 +1,8 @@
 "use client";
 
 import { memo, useState, useRef, useEffect, useMemo } from "react";
-import ReactMarkdown from "react-markdown";
 import { MarkdownBody } from "./MarkdownBody";
 import { ImagePreview } from "./ImagePreview";
-import { ThinkingIcon } from "./ThinkingIcon";
 import { useTheme } from "@/hooks/useTheme";
 import { usesDeepSeekBrand } from "@/lib/brand-theme";
 import { copyText } from "@/lib/clipboard";
@@ -911,12 +909,10 @@ export function ThinkingBlock({ block, duration, sessionId, entryId, blockIndex 
   blockIndex: number;
 }) {
   const { t } = useI18n();
-  const { theme } = useTheme();
   const [expanded, setExpanded] = useState(isThinkingExpandedByDefault);
   const [content, setContent] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const shimmer = usesDeepSeekBrand(theme) && !expanded;
   const tRef = useRef(t);
   tRef.current = t;
   const preview = getThinkingPreview(block.thinking);
@@ -960,63 +956,30 @@ export function ThinkingBlock({ block, duration, sessionId, entryId, blockIndex 
   }, [expanded, block.deferred, content, sessionId, entryId, blockIndex]);
 
   return (
-    <div style={{
-      display: "flex", alignItems: "flex-start", gap: 6, minWidth: 0,
-      border: "1px solid var(--border)",
-      borderRadius: 7,
-      padding: "6px 10px",
-      background: "var(--bg)",
-      fontFamily: "var(--font-mono)",
-      fontSize: "calc(11px + var(--chat-font-size-offset, 0px))",
-      lineHeight: 1.5,
-    }}>
+    <div className="agent-action">
       <button
         type="button"
+        className="agent-action-head"
         aria-expanded={expanded}
-        aria-label={`${t("i18n.thinking")}${preview ? `: ${preview}` : ""}`}
+        aria-label={`${t("chat.reasoning")}${preview ? `: ${preview}` : ""}`}
         title={t("i18n.thinking")}
         onClick={() => setExpanded((v) => !v)}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: 6,
-          width: expanded ? 14 : "100%",
-          flexShrink: expanded ? 0 : 1,
-          minWidth: 0,
-          minHeight: "1.5em",
-          padding: 0,
-          background: "transparent",
-          border: "none",
-          color: "var(--text-muted)",
-          cursor: "pointer",
-          font: "inherit",
-          textAlign: "left",
-        }}
       >
-        <ThinkingIcon active={expanded} />
-        {!expanded && (
-          <span className={shimmer ? "deepseek-thinking-shimmer" : undefined} style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {shimmer && duration
-              ? t("chat.thoughtFor", { seconds: duration })
-              : preview ? <ReactMarkdown allowedElements={[]} unwrapDisallowed skipHtml>{preview}</ReactMarkdown> : "..."}
-          </span>
-        )}
+        <ReasoningStatusIcon />
+        <span className="agent-action-type">{t("chat.reasoning")}</span>
+        <span className="agent-action-title">{preview || t("i18n.thinking")}</span>
+        {duration !== undefined && <span className="agent-action-meta">{duration}s</span>}
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--text-dim)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, transform: expanded ? "rotate(180deg)" : "none", transition: "transform 0.15s" }} aria-hidden="true">
+          <polyline points="2 3.5 5 6.5 8 3.5" />
+        </svg>
       </button>
       {expanded && (
         <div
-          style={{
-            flex: 1,
-            minWidth: 0,
-            color: error ? "var(--state-danger)" : "var(--text-muted)",
-            whiteSpace: "pre-wrap",
-            overflowWrap: "anywhere",
-          }}
+          className="agent-action-detail"
+          style={{ color: error ? "var(--state-danger)" : "var(--text-muted)" }}
         >
-           {loading ? t("i18n.loadingThinking") : error ?? (block.deferred ? content : block.thinking)}
+          {loading ? t("i18n.loadingThinking") : error ?? (block.deferred ? content : block.thinking)}
         </div>
-      )}
-      {duration !== undefined && (
-        <span style={{ flexShrink: 0, color: "var(--text-dim)", fontVariantNumeric: "tabular-nums" }}>{duration}s</span>
       )}
     </div>
   );
@@ -1026,6 +989,14 @@ function isSubagentToolDetails(value: unknown): value is SubagentToolDetails {
   if (!value || typeof value !== "object") return false;
   const details = value as Partial<SubagentToolDetails>;
   return details.kind === "pi-web-subagent" && typeof details.sessionId === "string";
+}
+
+function ReasoningStatusIcon() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--text-dim)" strokeWidth="1.5" strokeLinejoin="round" style={{ flexShrink: 0 }} aria-hidden="true">
+      <rect x="2.9" y="2.9" width="6.2" height="6.2" rx="1" transform="rotate(45 6 6)" />
+    </svg>
+  );
 }
 
 function ActionStatusIcon({ status }: { status: "running" | "success" | "error" | "waiting" }) {
@@ -1059,35 +1030,17 @@ function ToolCallBlock({ block, result, duration, onOpenSession }: { block: Tool
   const subagent = isSubagentToolDetails(result?.details) ? result.details : null;
 
   return (
-    <div
-      style={{
-        borderRadius: "var(--ui-radius-action)",
-        overflow: "hidden",
-        fontSize: "var(--font-sm)",
-        border: `1px solid ${isError
-          ? "var(--state-danger-border)"
-          : result
-            ? "var(--tool-row-border)"
-            : "color-mix(in srgb, var(--state-info) 22%, transparent)"}`,
-        background: isError
-          ? "var(--state-danger-soft)"
-          : result
-            ? "var(--bg-subtle)"
-            : "color-mix(in srgb, var(--state-info) 4%, transparent)",
-      }}
-    >
+    <div className={"agent-action" + (isError ? " is-error" : result ? "" : " is-running")}>
       {/* ── Tool call header ── */}
       <div style={{ display: "flex", alignItems: "stretch", minWidth: 0 }}>
         <button
           onClick={() => setExpanded((v) => !v)}
-          className="agent-action-row"
+          className="agent-action-head"
           aria-expanded={expanded}
         >
           <ActionStatusIcon status={isError ? "error" : result ? "success" : "running"} />
-          <span className="agent-action-name">
-            {block.toolName}
-          </span>
-          <span className="agent-action-desc">
+          <span className="agent-action-type">{block.toolName}</span>
+          <span className="agent-action-title">
             {isStreamingInput ? t("chat.generatingToolInput") : getToolPreview(block)}
           </span>
           {duration !== undefined && (
@@ -1110,18 +1063,23 @@ function ToolCallBlock({ block, result, duration, onOpenSession }: { block: Tool
         )}
       </div>
 
+      {/* 折叠时显示"实际执行了什么"：等宽、次要色、单行省略 */}
+      {!expanded && !isStreamingInput && inputStr && !isEditTool && (
+        <span className="agent-action-command">{inputStr}</span>
+      )}
+
       {/* ── Expanded: input args ── */}
       {expanded && (isStreamingInput || !isEditTool) && (
         <pre
           style={{
             margin: 0,
-            padding: "8px 10px",
+            padding: "0 8px 8px 98px",
             color: "var(--text-muted)",
-            fontSize: "calc(12px + var(--chat-font-size-offset, 0px))",
+            fontSize: "var(--font-xs)",
             lineHeight: 1.5,
             overflow: "auto",
-            background: "var(--bg-subtle)",
-            borderTop: isError ? "1px solid var(--state-danger-border)" : "1px solid var(--state-success-border)",
+            background: "none",
+            border: 0,
             whiteSpace: "pre-wrap",
             wordBreak: "break-all",
           }}

@@ -51,6 +51,7 @@
   /* Agent Action Row（工具调用行）：默认沿用卡片观感，DeepSeek 下按 Agent Trace 规格 */
   --ui-radius-action: var(--ui-radius-card);
   --tool-row-border: var(--border);
+  --agent-row-hover: rgba(0,0,0,0.035);
   --border-subtle: var(--border);
   --border-strong: var(--border);
   --divider: 1px solid var(--border);
@@ -205,6 +206,7 @@ html[data-theme="deepseek"],
   --border-subtle: rgba(255,255,255,0.08);
   --ui-radius-action: 10px;
   --tool-row-border: rgba(255,255,255,0.08);
+  --agent-row-hover: rgba(255,255,255,0.05);
   --border-strong: rgba(255,255,255,0.20);
   /* 分隔线几乎不可见；列表项不画边框（靠底色差区分） */
   --divider: 1px solid rgba(255,255,255,0.04);
@@ -301,6 +303,7 @@ html[data-theme="deepseek-light"],
   --border-subtle: rgba(0,0,0,0.06);
   --ui-radius-action: 10px;
   --tool-row-border: rgba(0,0,0,0.07);
+  --agent-row-hover: rgba(0,0,0,0.035);
   --border-strong: rgba(0,0,0,0.16);
   --divider: 1px solid rgba(0,0,0,0.04);
   --row-border: none;
@@ -2384,43 +2387,82 @@ span.token.table {
   animation: agent-status-pulse 1.4s ease-in-out infinite;
 }
 
-/* 动作行：第一行是"在干什么"（无衬线），机器细节（命令/输出）在展开区 */
-.agent-action-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1;
-  min-width: 0;
-  min-height: 40px;
-  padding: 8px 12px;
-  background: none;
-  border: none;
-  text-align: left;
-  cursor: pointer;
-  color: var(--text);
+/* Agent Trace 行：平时无边框无底色（避免"一串表单控件"），hover 才亮一下。
+   网格列固定：18px 状态图标 / 56px 工具类型 / 1fr 动作标题 / auto 时长 / auto 箭头 */
+.agent-action {
+  display: block;
+  width: 100%;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  transition: background 0.12s;
 }
 
-.agent-action-name {
-  flex-shrink: 0;
+.agent-action:hover {
+  background: var(--agent-row-hover);
+}
+
+.agent-action.is-running {
+  background: color-mix(in srgb, var(--state-info) 3.5%, transparent);
+}
+
+.agent-action-head {
+  display: grid;
+  grid-template-columns: 18px 56px minmax(0, 1fr) auto auto;
+  align-items: center;
+  column-gap: 8px;
+  width: 100%;
+  min-height: 34px;
+  padding: 5px 8px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.agent-action-type {
   font-family: var(--font-mono);
   font-size: var(--font-xs);
-  font-weight: 600;
-  color: var(--text);
-}
-
-.agent-action-desc {
-  flex: 1;
-  min-width: 0;
+  font-weight: 500;
+  color: var(--text-dim);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: var(--font-ui);
-  color: var(--text-muted);
+}
+
+.agent-action-title {
+  font-size: 13.5px;
+  font-weight: 450;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .agent-action-meta {
-  flex-shrink: 0;
-  font-size: var(--font-xs);
+  font-size: 11px;
   color: var(--text-dim);
   font-variant-numeric: tabular-nums;
+}
+
+.agent-action-command {
+  display: block;
+  padding: 0 8px 6px 98px;
+  font-family: var(--font-mono);
+  font-size: var(--font-xs);
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agent-action-detail {
+  padding: 2px 8px 8px 98px;
+  font-size: var(--font-sm);
+  line-height: 1.55;
+  color: var(--text-muted);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
