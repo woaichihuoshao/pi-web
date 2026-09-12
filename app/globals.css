@@ -2170,3 +2170,51 @@ span.token.table {
 .markdown-code-block:focus-within .markdown-code-actions {
   opacity: 1;
 }
+
+/* ChatGPT 风格字号层级（整合进 DeepSeek）：关键是不把字号差距拉大，
+   靠字重与留白分层。正文 16 / H3 20 / H2 24 / H1 30。
+   仍叠加用户的字号偏移，设置里调字号依然生效。 */
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body {
+  font-size: calc(16px + var(--chat-font-size-offset, 0px));
+  line-height: 1.65;
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body h1 {
+  font-size: calc(30px + var(--chat-font-size-offset, 0px));
+  line-height: 1.2;
+  font-weight: 700;
+  margin: 32px 0 14px;
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body h2 {
+  font-size: calc(24px + var(--chat-font-size-offset, 0px));
+  line-height: 1.25;
+  font-weight: 650;
+  margin: 28px 0 12px;
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body h3 {
+  font-size: calc(20px + var(--chat-font-size-offset, 0px));
+  line-height: 1.35;
+  font-weight: 600;
+  margin: 24px 0 10px;
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body h4,
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body h5,
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body h6 {
+  font-size: calc(15px + var(--chat-font-size-offset, 0px));
+  line-height: 1.4;
+  font-weight: 600;
+  margin: 18px 0 8px;
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body .markdown-inline-code {
+  font-size: calc(13.5px + var(--chat-font-size-offset, 0px));
+  line-height: 1.5;
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body .markdown-code-block {
+  font-size: calc(13.5px + var(--chat-font-size-offset, 0px));
+  line-height: 1.55;
+}

@@ -301,7 +301,7 @@ export const CodeBlock = memo(function CodeBlock({ code, lang, headerAction, isS
           style={{
             margin: 0,
             padding: "var(--code-block-pre-padding)",
-            fontSize: "calc(12.5px + var(--chat-font-size-offset, 0px))",
+            fontSize: "calc(13.5px + var(--chat-font-size-offset, 0px))",
             lineHeight: 1.62,
             overflowX: "auto",
             background: "color-mix(in srgb, var(--bg) 92%, var(--bg-panel))",
@@ -318,7 +318,7 @@ export const CodeBlock = memo(function CodeBlock({ code, lang, headerAction, isS
           customStyle={{
             margin: 0,
             padding: "var(--code-block-pre-padding)",
-            fontSize: "calc(12.5px + var(--chat-font-size-offset, 0px))",
+            fontSize: "calc(13.5px + var(--chat-font-size-offset, 0px))",
             lineHeight: 1.62,
             borderRadius: 0,
             background: "color-mix(in srgb, var(--bg) 92%, var(--bg-panel))",
