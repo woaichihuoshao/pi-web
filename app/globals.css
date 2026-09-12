@@ -297,20 +297,24 @@ html[data-theme="deepseek-light"],
   border-radius: 6px;
 }
 
-/* 流式生成时的闪烁光标（官网那种方块光标）*/
+/* 流式生成时的插入符：官网的 caret 用品牌色（--dsl-input-caret-color = brand-primary），
+   细条 + 圆角 + 柔和呼吸，画在最后一行文字的末尾。*/
 @keyframes deepseek-caret-blink {
-  0%, 45% { opacity: 1; }
-  50%, 100% { opacity: 0; }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.12; }
 }
 
-.deepseek-caret {
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body[data-streaming-caret] > *:last-child::after,
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) [data-streaming="true"] .markdown-body > *:last-child::after {
+  content: "";
   display: inline-block;
-  width: 7px;
-  height: 1.05em;
-  background: currentColor;
+  width: 2px;
+  height: 1em;
+  margin-left: 3px;
   border-radius: 1px;
+  background: var(--accent);
   vertical-align: text-bottom;
-  animation: deepseek-caret-blink 1s step-end infinite;
+  animation: deepseek-caret-blink 1.15s ease-in-out infinite;
 }
 
 /* 官网“已深度思考”那行灰底流光（shimmer）*/
