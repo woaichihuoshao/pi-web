@@ -167,11 +167,6 @@ export function ExtensionWidgets({ widgets }: { widgets: ExtensionWidgetItem[] }
             widget.lines.length === 1 ? "chat.extensionWidgetLine" : "chat.extensionWidgetLines",
             { count: widget.lines.length },
           );
-          const placementLabel = t(
-            widget.placement === "belowEditor"
-              ? "chat.extensionWidgetBelow"
-              : "chat.extensionWidgetAbove",
-          );
           const triggerId = `${idPrefix}-trigger-${index}`;
           const panelId = `${idPrefix}-panel-${index}`;
           const content = (
@@ -183,14 +178,12 @@ export function ExtensionWidgets({ widgets }: { widgets: ExtensionWidgetItem[] }
                   viewBox="0 0 8 6"
                   width="8"
                   height="6"
-                  data-direction={widget.placement === "belowEditor" ? "down" : "up"}
+                  data-direction="up"
                   focusable="false"
                 >
-                  <path
-                    d={widget.placement === "belowEditor"
-                      ? "M0 0h8L4 6z"
-                      : "M4 0l4 6H0z"}
-                  />
+                  {/* Pi Web always expands the panel above the trigger row, so the
+                      arrow does not follow the extension's above/below placement. */}
+                  <path d="M4 0l4 6H0z" />
                 </svg>
               </span>
               <span className="extension-widget-key">{widgetTriggerLabel(widget.key, widget.lines)}</span>
@@ -205,8 +198,8 @@ export function ExtensionWidgets({ widgets }: { widgets: ExtensionWidgetItem[] }
               className={`extension-widget-trigger${expanded ? " is-expanded" : ""}${updating ? " is-updating" : ""}`}
               aria-controls={panelId}
               aria-expanded={expanded}
-              aria-label={`${placementLabel}: ${widget.key}, ${lineCountLabel}`}
-              title={`${widget.key} - ${placementLabel} - ${expanded ? t("i18n.collapse") : t("i18n.expand")}`}
+              aria-label={`${widget.key}, ${lineCountLabel}`}
+              title={`${widget.key} - ${expanded ? t("i18n.collapse") : t("i18n.expand")}`}
               onClick={() => toggleWidget(widget)}
             >
               {content}
@@ -215,8 +208,8 @@ export function ExtensionWidgets({ widgets }: { widgets: ExtensionWidgetItem[] }
             <div
               key={widget.key}
               className={`extension-widget-trigger${updating ? " is-updating" : ""}`}
-              aria-label={`${placementLabel}: ${widget.key}, ${lineCountLabel}`}
-              title={`${widget.key} - ${placementLabel}`}
+              aria-label={`${widget.key}, ${lineCountLabel}`}
+              title={widget.key}
             >
               {content}
             </div>

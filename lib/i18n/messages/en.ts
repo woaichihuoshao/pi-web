@@ -327,8 +327,6 @@ export const enLocale: LocalePlugin = {
     "chat.extensionInput": "Extension terminal input",
     "chat.extensionPanel": "Extension panel",
     "chat.extensionWidgets": "Extension widgets",
-    "chat.extensionWidgetAbove": "Above editor widget",
-    "chat.extensionWidgetBelow": "Below editor widget",
     "chat.extensionWidgetLine": "{count} line",
     "chat.extensionWidgetLines": "{count} lines",
     "chat.close": "Close",
