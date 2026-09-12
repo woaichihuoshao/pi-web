@@ -196,6 +196,26 @@ function subscribeUpwardMenuMaxHeight(
   };
 }
 
+/**
+ * Chrome 行为：输入框为空时光标高度取字体本身高度，有内容后改用 CSS line-height，
+ * 两种状态不一致（空态明显短一截）。因此在 DOM 里始终垫一个**零宽空格**，
+ * 让空态也走"有内容"的光标逻辑；占位符改为自绘（见 chat-input-placeholder）。
+ * 注意：React 状态里始终是干净文本，哨兵只存在于 DOM 中。
+ */
+const CARET_SENTINEL = "\u200B";
+
+function stripCaretSentinel(text: string): string {
+  return text.includes(CARET_SENTINEL) ? text.split(CARET_SENTINEL).join("") : text;
+}
+
+function readComposerTextarea(el: HTMLTextAreaElement): { text: string; caret: number } {
+  const hadSentinel = el.value.includes(CARET_SENTINEL);
+  return {
+    text: stripCaretSentinel(el.value),
+    caret: Math.max(0, (el.selectionStart ?? 0) - (hadSentinel ? 1 : 0)),
+  };
+}
+
 const THINKING_LEVELS = ["auto", "off", "minimal", "low", "medium", "high", "xhigh", "max"] as const;
 const THINKING_LEVEL_DESC_KEYS: Record<typeof THINKING_LEVELS[number], string> = {
   auto: "chat.thinkingUseDefault", off: "chat.thinkingOff", minimal: "chat.thinkingMinimal", low: "chat.thinkingLow",
@@ -564,6 +584,14 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
   const { fontSize } = useChatAppearance();
   const isMobile = useIsMobile();
   const [value, setValue] = useState(() => (draftKey ? getDraft(draftKey)?.value ?? "" : ""));
+
+  /** 输入框占位文案（与原生 placeholder 保持同一份取值） */
+  const composerPlaceholder =
+    isStreaming && (onSteer || onFollowUp)
+      ? t("chat.steerPlaceholder")
+      : isStreaming
+        ? t("chat.agentPlaceholder")
+        : t("chat.messagePlaceholder");
   const [toolDropdownOpen, setToolDropdownOpen] = useState(false);
   const [thinkingDropdownOpen, setThinkingDropdownOpen] = useState(false);
   const [controlsMenuOpen, setControlsMenuOpen] = useState(false);
@@ -903,6 +931,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
   }, []);
 
   useLayoutEffect(resizeTextarea, [value, fontSize, resizeTextarea]);
+
 
   useEffect(() => {
     const ta = textareaRef.current;
@@ -2114,20 +2143,25 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
               transition: "border-color 0.15s, background 0.15s, box-shadow 0.15s",
             } as React.CSSProperties}
           >
+          {/* 空态：垫了零宽空格后原生 placeholder 不会显示，故自绘一层 */}
+          {value === "" && (
+            <div className="chat-input-placeholder" aria-hidden="true">{composerPlaceholder}</div>
+          )}
           <textarea
             ref={textareaRef}
             className="chat-input-textarea"
             aria-label={compact ? t("chat.quoteQuestion") : undefined}
-            value={value}
+            value={value === "" ? CARET_SENTINEL : value}
             onChange={(e) => {
-              valueRef.current = e.target.value;
-              setValue(e.target.value);
+              const { text, caret } = readComposerTextarea(e.target);
+              valueRef.current = text;
+              setValue(text);
               setHistoryMenuOpen(false);
-              updateAtQuery(e.target.value, e.target.selectionStart);
+              updateAtQuery(text, caret);
             }}
             onSelect={(e) => {
-              const el = e.currentTarget;
-              updateAtQuery(el.value, el.selectionStart);
+              const { text, caret } = readComposerTextarea(e.currentTarget);
+              updateAtQuery(text, caret);
             }}
             onKeyDown={handleKeyDown}
             onCompositionStart={() => {
@@ -2136,17 +2170,12 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
             onCompositionEnd={(e) => {
               isComposingRef.current = false;
               lastCompositionEndAtRef.current = Date.now();
-              const el = e.currentTarget;
-              updateAtQuery(el.value, el.selectionStart);
+              const { text, caret } = readComposerTextarea(e.currentTarget);
+              updateAtQuery(text, caret);
             }}
             onInput={handleInput}
             onPaste={handlePaste}
-            placeholder={
-              isStreaming && (onSteer || onFollowUp)
-                ? t("chat.steerPlaceholder")
-                : isStreaming ? t("chat.agentPlaceholder")
-                : t("chat.messagePlaceholder")
-            }
+            placeholder={composerPlaceholder}
             rows={1}
             style={{
               flex: compact ? "none" : 1,

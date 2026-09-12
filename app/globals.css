@@ -2324,3 +2324,24 @@ span.token.table {
 :is([data-theme="deepseek"], [data-theme="deepseek-light"]) .chat-input-textarea {
   caret-color: var(--accent);
 }
+
+/* 输入框自绘占位文字（空态垫了零宽空格，原生 placeholder 不会显示）。
+   与 textarea 用同一套字号/行高，位置对齐其默认 2px 内边距。 */
+.chat-input-placeholder {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 0;
+  pointer-events: none;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: color-mix(in srgb, var(--text) 50%, transparent);
+  font-size: var(--chat-content-font-size, 14px);
+  line-height: 1.6;
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .chat-input-placeholder {
+  font-size: calc(16px + var(--chat-font-size-offset, 0px));
+  line-height: 1.4;
+}
