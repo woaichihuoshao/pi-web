@@ -60,6 +60,7 @@
   --shadow-dialog: 0 12px 32px rgba(0,0,0,0.18);
   --shadow-composer: 0 1px 2px rgba(15,23,42,0.04), 0 8px 24px -12px rgba(15,23,42,0.10);
   --code-block-bg: var(--bg);
+  --code-block-text: var(--text);
   --code-block-banner-bg: var(--bg-panel);
   --code-block-border: 1px solid var(--border);
   --code-block-radius: 7px;
@@ -252,17 +253,18 @@ html[data-theme="deepseek"],
   --shadow-composer: none;
   --inline-code-bg: #2c2c2e;
   --code-block-bg: #1b1b1c;
+  --code-block-text: #e6e6e6;
   --code-block-banner-bg: #2c2c2e;
   --code-block-border: none;
-  --code-block-radius: 12px;
+  --code-block-radius: 18px;
   --code-block-shadow: none;
-  --code-block-header-padding: 9px 14px;
+  --code-block-header-padding: 0 18px;
   --code-block-header-border: none;
   --code-block-header-font-size: 13px;
   --code-block-lang-weight: 400;
   --code-block-action-border: none;
   --code-block-action-padding: 0;
-  --code-block-pre-padding: 16px;
+  --code-block-pre-padding: 4px 36px 22px;
   --table-wrap-border: none;
   --table-wrap-radius: 0;
   --table-row-border: var(--border-subtle);
@@ -344,17 +346,18 @@ html[data-theme="deepseek-light"],
   --shadow-composer: none;
   --inline-code-bg: #ebeef2;
   --code-block-bg: #f9fafb;
+  --code-block-text: #303030;
   --code-block-banner-bg: #f9fafb;
   --code-block-border: none;
-  --code-block-radius: 12px;
+  --code-block-radius: 18px;
   --code-block-shadow: none;
-  --code-block-header-padding: 9px 14px;
+  --code-block-header-padding: 0 18px;
   --code-block-header-border: none;
   --code-block-header-font-size: 13px;
   --code-block-lang-weight: 400;
   --code-block-action-border: none;
   --code-block-action-padding: 0;
-  --code-block-pre-padding: 16px;
+  --code-block-pre-padding: 4px 36px 22px;
   --table-wrap-border: none;
   --table-wrap-radius: 0;
   --table-row-border: var(--border-subtle);
@@ -2493,3 +2496,48 @@ span.token.table {
   word-break: break-all;
 }
 
+/* 代码块身份：语言栏高 46px、语言名 14px/500 主文字色（不是灰色小字）+ </> 图标 */
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-code-header {
+  height: 46px;
+  border-radius: var(--code-block-radius) var(--code-block-radius) 0 0;
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-code-lang {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-code-lang-icon {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* 复制键：32×32 图标按钮，hover 才有底色 */
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-code-action {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-code-action:hover {
+  background: var(--agent-row-hover);
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-code-block code {
+  font-size: 13.5px;
+  line-height: 1.6;
+  font-weight: 400;
+  color: var(--code-block-text);
+  tab-size: 2;
+}

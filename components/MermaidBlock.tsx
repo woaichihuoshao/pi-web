@@ -5,6 +5,66 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vs } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import { useTheme } from "@/hooks/useTheme";
+import { usesDeepSeekBrand } from "@/lib/brand-theme";
+
+/** DeepSeek 主题下的低饱和代码配色（用户给的 token 值，浅色版） */
+const dsCodeLight: Record<string, React.CSSProperties> = {
+  'code[class*="language-"]': { color: "#303030", background: "none" },
+  'pre[class*="language-"]': { color: "#303030", background: "none", margin: 0 },
+  comment: { color: "#8a8a8a", fontStyle: "normal" },
+  prolog: { color: "#8a8a8a" },
+  doctype: { color: "#8a8a8a" },
+  cdata: { color: "#8a8a8a" },
+  punctuation: { color: "#3f3f3f" },
+  selector: { color: "#a54828" },
+  property: { color: "#6850b8" },
+  "attr-name": { color: "#6850b8" },
+  keyword: { color: "#a54828" },
+  tag: { color: "#a54828" },
+  boolean: { color: "#c05235" },
+  number: { color: "#c05235" },
+  constant: { color: "#c05235" },
+  symbol: { color: "#c05235" },
+  string: { color: "#39764f" },
+  char: { color: "#39764f" },
+  "attr-value": { color: "#39764f" },
+  builtin: { color: "#6850b8" },
+  function: { color: "#3f5aa8" },
+  "class-name": { color: "#3f5aa8" },
+  variable: { color: "#303030" },
+  operator: { color: "#3f3f3f" },
+  "deleted": { color: "#c05235" },
+  "inserted": { color: "#39764f" },
+};
+
+const dsCodeDark: Record<string, React.CSSProperties> = {
+  ...dsCodeLight,
+  'code[class*="language-"]': { color: "#e6e6e6", background: "none" },
+  'pre[class*="language-"]': { color: "#e6e6e6", background: "none", margin: 0 },
+  comment: { color: "#8a8a8a", fontStyle: "normal" },
+  prolog: { color: "#8a8a8a" },
+  cdata: { color: "#8a8a8a" },
+  punctuation: { color: "#c9c9c9" },
+  selector: { color: "#e0997a" },
+  property: { color: "#b8a6ea" },
+  "attr-name": { color: "#b8a6ea" },
+  keyword: { color: "#e0997a" },
+  tag: { color: "#e0997a" },
+  boolean: { color: "#e2a184" },
+  number: { color: "#e2a184" },
+  constant: { color: "#e2a184" },
+  symbol: { color: "#e2a184" },
+  string: { color: "#8fbf9f" },
+  char: { color: "#8fbf9f" },
+  "attr-value": { color: "#8fbf9f" },
+  builtin: { color: "#b8a6ea" },
+  function: { color: "#9db4e8" },
+  "class-name": { color: "#9db4e8" },
+  variable: { color: "#e6e6e6" },
+  operator: { color: "#c9c9c9" },
+  "deleted": { color: "#e2a184" },
+  "inserted": { color: "#8fbf9f" },
+};
 import { useI18n } from "@/hooks/useI18n";
 import { copyText } from "@/lib/clipboard";
 
@@ -267,7 +327,8 @@ interface CodeBlockProps {
  * every chunk, which is the single most expensive part of streamed rendering.
  */
 export const CodeBlock = memo(function CodeBlock({ code, lang, headerAction, isStreaming }: CodeBlockProps) {
-  const { isDark } = useTheme();
+  const { isDark, theme } = useTheme();
+  const deepseekBrand = usesDeepSeekBrand(theme);
   const { t } = useI18n();
   const [copied, setCopied] = useState(false);
 
@@ -285,14 +346,25 @@ export const CodeBlock = memo(function CodeBlock({ code, lang, headerAction, isS
       {/* 没有语言名（或纯文本）时不显示头部，避免多出一条"卡片头"；
           复制按钮改为右上角悬停浮现（官网 banner-lite 的思路） */}
       <div className={hasLang ? "markdown-code-header" : "markdown-code-header markdown-code-header--lite"}>
-        {hasLang && <span className="markdown-code-lang">{lang}</span>}
+        {hasLang && (
+          <span className="markdown-code-lang">
+            <span className="markdown-code-lang-icon" aria-hidden="true">&lt;/&gt;</span>
+            {lang}
+          </span>
+        )}
         <div className="markdown-code-actions">
           {headerAction}
           <button
             onClick={copy}
             className="markdown-code-action"
+            title={copied ? t("i18n.copied") : t("i18n.copy")}
+            aria-label={copied ? t("i18n.copied") : t("i18n.copy")}
           >
-            {copied ? t("i18n.copied") : t("i18n.copy")}
+            {copied ? (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+            ) : (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>
+            )}
           </button>
         </div>
       </div>
@@ -302,9 +374,11 @@ export const CodeBlock = memo(function CodeBlock({ code, lang, headerAction, isS
             margin: 0,
             padding: "var(--code-block-pre-padding)",
             fontSize: "calc(13.5px + var(--chat-font-size-offset, 0px))",
-            lineHeight: 1.62,
+            lineHeight: 1.6,
+            tabSize: 2,
             overflowX: "auto",
-            background: "color-mix(in srgb, var(--bg) 92%, var(--bg-panel))",
+            color: "var(--code-block-text)",
+            background: "var(--code-block-bg)",
           }}
         >
           <code style={{ fontFamily: "var(--font-mono)" }}>{code}</code>
@@ -312,16 +386,18 @@ export const CodeBlock = memo(function CodeBlock({ code, lang, headerAction, isS
       ) : (
         <SyntaxHighlighter
           language={lang || "text"}
-          style={isDark ? vscDarkPlus : vs}
-          showLineNumbers
+          style={deepseekBrand ? (isDark ? dsCodeDark : dsCodeLight) : (isDark ? vscDarkPlus : vs)}
+          showLineNumbers={false}
           lineNumberStyle={{ color: "var(--text-dim)", fontStyle: "normal" }}
           customStyle={{
             margin: 0,
             padding: "var(--code-block-pre-padding)",
             fontSize: "calc(13.5px + var(--chat-font-size-offset, 0px))",
-            lineHeight: 1.62,
+            lineHeight: 1.6,
+            tabSize: 2,
             borderRadius: 0,
-            background: "color-mix(in srgb, var(--bg) 92%, var(--bg-panel))",
+            color: "var(--code-block-text)",
+            background: "var(--code-block-bg)",
           }}
           codeTagProps={{ style: { fontFamily: "var(--font-mono)" } }}
         >
