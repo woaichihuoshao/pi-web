@@ -801,7 +801,7 @@ function AssistantMessageView({
         })()}
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {blockItems.map(({ block, originalIndex }) => (
           <BlockView key={`${entryId ?? "stream"}-${originalIndex}`} block={block} searchTarget={block === searchBlock} toolResults={toolResults} isStreaming={isStreaming} streamingDuration={streamingDurations.get(originalIndex) ?? (block.type === "thinking" ? thinkingDurationFromFile : undefined)} toolCallDurations={toolCallDurations} cwd={cwd} onOpenFile={onOpenFile} onOpenSession={onOpenSession} sessionId={sessionId} entryId={entryId} blockIndex={originalIndex} />
         ))}
@@ -974,12 +974,10 @@ export function ThinkingBlock({ block, duration, sessionId, entryId, blockIndex 
         </svg>
       </button>
       {expanded && (
-        <div
-          className="agent-action-detail"
-          style={{ color: error ? "var(--state-danger)" : "var(--text-muted)" }}
-        >
-          {loading ? t("i18n.loadingThinking") : error ?? (block.deferred ? content : block.thinking)}
-        </div>
+        <ReasoningBody
+          text={loading ? t("i18n.loadingThinking") : error ?? (block.deferred ? content : block.thinking)}
+          danger={Boolean(error)}
+        />
       )}
     </div>
   );
@@ -989,6 +987,17 @@ function isSubagentToolDetails(value: unknown): value is SubagentToolDetails {
   if (!value || typeof value !== "object") return false;
   const details = value as Partial<SubagentToolDetails>;
   return details.kind === "pi-web-subagent" && typeof details.sessionId === "string";
+}
+
+function ReasoningBody({ text, danger }: { text: string | null | undefined; danger?: boolean }) {
+  const paragraphs = String(text ?? "").split(/\n{2,}/).filter((p) => p.trim() !== "");
+  return (
+    <div className="agent-action-detail" style={danger ? { color: "var(--state-danger)" } : undefined}>
+      {(paragraphs.length ? paragraphs : [""]).map((paragraph, index) => (
+        <p key={index}>{paragraph}</p>
+      ))}
+    </div>
+  );
 }
 
 function ReasoningStatusIcon() {
@@ -1070,22 +1079,7 @@ function ToolCallBlock({ block, result, duration, onOpenSession }: { block: Tool
 
       {/* ── Expanded: input args ── */}
       {expanded && (isStreamingInput || !isEditTool) && (
-        <pre
-          style={{
-            margin: 0,
-            padding: "0 8px 8px 98px",
-            color: "var(--text-muted)",
-            fontSize: "var(--font-xs)",
-            lineHeight: 1.5,
-            overflow: "auto",
-            background: "none",
-            border: 0,
-            whiteSpace: "pre-wrap",
-            wordBreak: "break-all",
-          }}
-        >
-          {inputStr}
-        </pre>
+        <pre className="agent-tool-output">{inputStr}</pre>
       )}
 
       {/* ── Paired result — only shown when expanded ── */}

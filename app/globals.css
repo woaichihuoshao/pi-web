@@ -2408,11 +2408,11 @@ span.token.table {
 
 .agent-action-head {
   display: grid;
-  grid-template-columns: 18px 56px minmax(0, 1fr) auto auto;
+  grid-template-columns: 20px 88px minmax(0, 1fr) auto;
   align-items: center;
-  column-gap: 8px;
+  column-gap: 10px;
   width: 100%;
-  min-height: 34px;
+  min-height: 32px;
   padding: 5px 8px;
   background: none;
   border: 0;
@@ -2424,7 +2424,7 @@ span.token.table {
 
 .agent-action-type {
   font-family: var(--font-mono);
-  font-size: var(--font-xs);
+  font-size: 13px;
   font-weight: 500;
   color: var(--text-dim);
   overflow: hidden;
@@ -2433,7 +2433,7 @@ span.token.table {
 }
 
 .agent-action-title {
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 450;
   color: var(--text);
   overflow: hidden;
@@ -2449,7 +2449,7 @@ span.token.table {
 
 .agent-action-command {
   display: block;
-  padding: 0 8px 6px 98px;
+  padding: 0 8px 6px 136px;
   font-family: var(--font-mono);
   font-size: var(--font-xs);
   color: var(--text-dim);
@@ -2459,10 +2459,37 @@ span.token.table {
 }
 
 .agent-action-detail {
-  padding: 2px 8px 8px 98px;
-  font-size: var(--font-sm);
-  line-height: 1.55;
+  margin: 8px 8px 8px 136px;
+  padding-left: 0;
+  font-size: 14px;
+  line-height: 1.65;
   color: var(--text-muted);
-  white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+/* Reasoning 正文：段落之间固定 10px（不要浏览器默认 1em 造成的松散） */
+.agent-action-detail p {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.agent-action-detail p + p {
+  margin-top: 10px;
+}
+
+/* 机器输出（命令参数等）：极弱底色面板，无边框，与轨迹行拉开一档层级 */
+.agent-tool-output {
+  display: block;
+  margin: 8px 8px 8px 136px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--bg-subtle);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-muted);
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
