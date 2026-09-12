@@ -2329,8 +2329,9 @@ span.token.table {
    与 textarea 用同一套字号/行高，位置对齐其默认 2px 内边距。 */
 .chat-input-placeholder {
   position: absolute;
-  top: 2px;
-  left: 2px;
+  /* 与 textarea 同一外壳定位，即输入框内容起点 */
+  top: 0;
+  left: 0;
   right: 0;
   pointer-events: none;
   overflow: hidden;

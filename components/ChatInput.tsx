@@ -2143,6 +2143,8 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
               transition: "border-color 0.15s, background 0.15s, box-shadow 0.15s",
             } as React.CSSProperties}
           >
+          {/* textarea 的定位外壳：占位层与输入框同壳，避免受容器内边距/垂直居中影响 */}
+          <div style={{ position: "relative", minWidth: 0, display: "flex", flexDirection: "column", flex: compact ? "none" : 1 }}>
           {/* 空态：垫了零宽空格后原生 placeholder 不会显示，故自绘一层 */}
           {value === "" && (
             <div className="chat-input-placeholder" aria-hidden="true">{composerPlaceholder}</div>
@@ -2178,7 +2180,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
             placeholder={composerPlaceholder}
             rows={1}
             style={{
-              flex: compact ? "none" : 1,
+              flex: 1,
               minWidth: 0,
               width: "100%",
               background: "none",
@@ -2194,6 +2196,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
               overflow: "auto",
             }}
           />
+          </div>
 
           {isStreaming ? (
             <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0, alignSelf: "flex-end" }}>
