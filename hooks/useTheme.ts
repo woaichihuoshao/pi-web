@@ -2,6 +2,7 @@
 
 import { useCallback, useSyncExternalStore } from "react";
 import { isDarkTheme, isThemePreference, type ThemePreference, type ResolvedTheme } from "@/lib/theme";
+import { usesDeepSeekBrand } from "@/lib/brand-theme";
 
 export type { ThemePreference, ResolvedTheme } from "@/lib/theme";
 
@@ -42,10 +43,32 @@ function resolveTheme(preference: ThemePreference): ResolvedTheme {
   return preference === "auto" ? getSystemTheme() : preference;
 }
 
+/** DeepSeek 主题下把站点图标换成鲸鱼；其它主题恢复默认 favicon。 */
+function applyBrandFavicon(theme: ResolvedTheme): void {
+  const id = "pi-theme-favicon";
+  const existing = document.getElementById(id) as HTMLLinkElement | null;
+  if (!usesDeepSeekBrand(theme)) {
+    existing?.remove();
+    return;
+  }
+  const href = "/brand-deepseek.svg";
+  if (existing) {
+    existing.href = href;
+    return;
+  }
+  const link = document.createElement("link");
+  link.id = id;
+  link.rel = "icon";
+  link.type = "image/svg+xml";
+  link.href = href;
+  document.head.appendChild(link);
+}
+
 function applyDomTheme(theme: ResolvedTheme): void {
   if (typeof document === "undefined") return;
   document.documentElement.dataset.theme = theme;
   document.documentElement.classList.toggle("dark", isDarkTheme(theme));
+  applyBrandFavicon(theme);
 }
 
 function ensureState(): ThemeState {

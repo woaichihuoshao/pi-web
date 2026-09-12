@@ -1,4 +1,29 @@
+"use client";
+
+import { useTheme } from "@/hooks/useTheme";
+import { usesDeepSeekBrand } from "@/lib/brand-theme";
+import { DeepSeekMark } from "./DeepSeekMark";
+
+const DEEPSEEK_BLUE = "#4d6bfe";
+
 export function ThinkingIcon({ active, size = 14 }: { active: boolean; size?: number }) {
+  const { theme } = useTheme();
+
+  // DeepSeek 主题下用品牌鲸鱼代替灯泡图标，思考中轻微呼吸。
+  if (usesDeepSeekBrand(theme)) {
+    return (
+      <span
+        style={{
+          display: "inline-flex",
+          flexShrink: 0,
+          animation: active ? "pulse 1.4s ease-in-out infinite" : undefined,
+        }}
+      >
+        <DeepSeekMark size={size} color={active ? DEEPSEEK_BLUE : "currentColor"} />
+      </span>
+    );
+  }
+
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ flexShrink: 0 }}>
       <path
