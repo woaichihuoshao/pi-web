@@ -2292,7 +2292,9 @@ span.token.table {
 /* 输入框文字与正文一致（资料：不要为了精致把输入框写成 12px） */
 :is([data-theme="deepseek"], [data-theme="deepseek-light"]) .chat-input-textarea {
   font-size: calc(16px + var(--chat-font-size-offset, 0px)) !important;
-  line-height: 1.5;
+  /* Chrome 行为：空输入框的光标高度 = 字体高度，有字后 = line-height。
+     line-height 越大，两种状态差得越多（1.6 时差约 9px）。收到 1.4 让两者接近。 */
+  line-height: 1.4 !important;
 }
 
 /* 没有语言名的代码块（多为纯文本/对照列表，不是真代码）：不再套灰底方框，
