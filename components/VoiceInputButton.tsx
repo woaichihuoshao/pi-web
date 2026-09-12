@@ -100,7 +100,7 @@ export function VoiceInputButton({ textareaRef, value, setValue }: Props) {
         <span
           aria-label={`${t("chat.voiceRecording")} ${duration}`}
           style={{
-            color: "#ef4444",
+            color: "var(--state-danger)",
             fontSize: 12,
             fontVariantNumeric: "tabular-nums",
             letterSpacing: "0.01em",
@@ -118,7 +118,7 @@ export function VoiceInputButton({ textareaRef, value, setValue }: Props) {
             overflow: "hidden",
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
-            color: "#ef4444",
+            color: "var(--state-danger)",
             fontSize: 12,
           }}
         >
@@ -137,22 +137,22 @@ export function VoiceInputButton({ textareaRef, value, setValue }: Props) {
           width: 32,
           height: 32,
           padding: 0,
-          background: state === "recording" ? "rgba(239,68,68,0.12)" : "none",
+          background: state === "recording" ? "var(--state-danger-soft)" : "none",
           border: "none",
           borderRadius: 9,
-          color: state === "recording" ? "#ef4444" : "var(--text-muted)",
+          color: state === "recording" ? "var(--state-danger)" : "var(--text-muted)",
           cursor: state === "transcribing" ? "progress" : "pointer",
           opacity: state === "transcribing" ? 0.6 : 1,
           transition: "background 0.12s, color 0.12s, opacity 0.12s",
         }}
         onMouseEnter={(event) => {
           if (state === "transcribing") return;
-          event.currentTarget.style.background = state === "recording" ? "rgba(239,68,68,0.18)" : "var(--bg-hover)";
+          event.currentTarget.style.background = state === "recording" ? "var(--state-danger-soft)" : "var(--bg-hover)";
           if (state !== "recording") event.currentTarget.style.color = "var(--text)";
         }}
         onMouseLeave={(event) => {
-          event.currentTarget.style.background = state === "recording" ? "rgba(239,68,68,0.12)" : "none";
-          event.currentTarget.style.color = state === "recording" ? "#ef4444" : "var(--text-muted)";
+          event.currentTarget.style.background = state === "recording" ? "var(--state-danger-soft)" : "none";
+          event.currentTarget.style.color = state === "recording" ? "var(--state-danger)" : "var(--text-muted)";
         }}
       >
         {state === "transcribing" ? (

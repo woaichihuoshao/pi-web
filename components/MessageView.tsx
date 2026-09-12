@@ -820,7 +820,7 @@ function AssistantMessageView({
             border: "1px solid rgba(239,68,68,0.3)",
             borderRadius: 6,
             background: "rgba(239,68,68,0.07)",
-            color: "#ef4444",
+            color: "var(--state-danger)",
             fontFamily: "var(--font-mono)",
             fontSize: 12,
             lineHeight: 1.5,
@@ -1011,7 +1011,7 @@ export function ThinkingBlock({ block, duration, sessionId, entryId, blockIndex 
           style={{
             flex: 1,
             minWidth: 0,
-            color: error ? "#f87171" : "var(--text-muted)",
+            color: error ? "var(--state-danger)" : "var(--text-muted)",
             whiteSpace: "pre-wrap",
             overflowWrap: "anywhere",
           }}
@@ -1055,8 +1055,8 @@ function ToolCallBlock({ block, result, duration, onOpenSession }: { block: Tool
         borderRadius: 7,
         overflow: "hidden",
         fontSize: 12,
-        border: isError ? "1px solid rgba(248,113,113,0.45)" : "1px solid rgba(34,197,94,0.25)",
-        background: isError ? "rgba(248,113,113,0.05)" : "rgba(34,197,94,0.04)",
+        border: isError ? "1px solid var(--state-danger-border)" : "1px solid var(--state-success-border)",
+        background: isError ? "var(--state-danger-soft)" : "var(--state-success-soft)",
       }}
     >
       {/* ── Tool call header ── */}
@@ -1078,7 +1078,7 @@ function ToolCallBlock({ block, result, duration, onOpenSession }: { block: Tool
             textAlign: "left",
           }}
         >
-          <span style={{ color: isError ? "#f87171" : "#16a34a", fontFamily: "var(--font-mono)", fontWeight: 600, fontSize: 11, flexShrink: 0 }}>
+          <span style={{ color: isError ? "var(--state-danger)" : "var(--state-success)", fontFamily: "var(--font-mono)", fontWeight: 600, fontSize: 11, flexShrink: 0 }}>
             {block.toolName}
           </span>
           <span style={{ color: "var(--text-dim)", fontFamily: "var(--font-mono)", fontSize: 11, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, minWidth: 0 }}>
@@ -1115,7 +1115,7 @@ function ToolCallBlock({ block, result, duration, onOpenSession }: { block: Tool
             lineHeight: 1.5,
             overflow: "auto",
             background: "var(--bg-subtle)",
-            borderTop: isError ? "1px solid rgba(248,113,113,0.25)" : "1px solid rgba(34,197,94,0.2)",
+            borderTop: isError ? "1px solid var(--state-danger-border)" : "1px solid var(--state-success-border)",
             whiteSpace: "pre-wrap",
             wordBreak: "break-all",
           }}
@@ -1153,7 +1153,7 @@ function PairedDiffResult({ diff }: {
   return (
     <div
       style={{
-        borderTop: "1px solid rgba(34,197,94,0.15)",
+        borderTop: "1px solid var(--state-success-border)",
         background: "var(--bg)",
       }}
     >
@@ -1239,16 +1239,16 @@ function SplitDiffHeader({ title, side }: { title: string; side: "left" | "right
 function SplitDiffCellView({ cell, side }: { cell: SplitDiffCell; side: "left" | "right" }) {
   const bg =
     cell.type === "added"
-      ? "rgba(34,197,94,0.12)"
+      ? "var(--state-success-soft)"
       : cell.type === "removed"
-      ? "rgba(248,113,113,0.13)"
+      ? "var(--state-danger-soft)"
       : cell.type === "empty"
       ? "var(--bg-subtle)"
       : "transparent";
   const marker =
     cell.type === "added" ? "+" : cell.type === "removed" ? "-" : " ";
   const markerColor =
-    cell.type === "added" ? "#22c55e" : cell.type === "removed" ? "#f87171" : "var(--text-dim)";
+    cell.type === "added" ? "var(--state-success)" : cell.type === "removed" ? "var(--state-danger)" : "var(--text-dim)";
 
   return (
     <div
@@ -1313,13 +1313,13 @@ function PatchTextView({ text }: { text: string }) {
           line.startsWith("-") && !line.startsWith("---") ? "removed" :
           "context";
         const bg =
-          kind === "added" ? "rgba(34,197,94,0.12)" :
-          kind === "removed" ? "rgba(248,113,113,0.13)" :
+          kind === "added" ? "var(--state-success-soft)" :
+          kind === "removed" ? "var(--state-danger-soft)" :
           kind === "hunk" ? "rgba(96,165,250,0.12)" :
           "transparent";
         const color =
-          kind === "added" ? "#22c55e" :
-          kind === "removed" ? "#f87171" :
+          kind === "added" ? "var(--state-success)" :
+          kind === "removed" ? "var(--state-danger)" :
           kind === "hunk" ? "var(--accent)" :
           "var(--text)";
 
@@ -1332,7 +1332,7 @@ function PatchTextView({ text }: { text: string }) {
               borderLeft: kind === "added"
                 ? "3px solid #22c55e"
                 : kind === "removed"
-                ? "3px solid #f87171"
+                ? "3px solid var(--state-danger)"
                 : kind === "hunk"
                 ? "3px solid var(--accent)"
                 : "3px solid transparent",
@@ -1390,8 +1390,8 @@ function PairedResult({ text, images, isEmpty, isError }: {
   return (
     <div
       style={{
-        borderTop: `1px solid ${isError ? "rgba(248,113,113,0.3)" : "rgba(34,197,94,0.15)"}`,
-        background: isError ? "rgba(248,113,113,0.04)" : "var(--bg-subtle)",
+        borderTop: `1px solid ${isError ? "var(--state-danger-border)" : "rgba(34,197,94,0.15)"}`,
+        background: isError ? "var(--state-danger-soft)" : "var(--bg-subtle)",
       }}
     >
       {images.length > 0 && (
@@ -1429,7 +1429,7 @@ function PairedResult({ text, images, isEmpty, isError }: {
           style={{
             margin: 0,
             padding: "8px 10px",
-            color: isError ? "#f87171" : (isEmpty ? "var(--text-dim)" : "var(--text-muted)"),
+            color: isError ? "var(--state-danger)" : (isEmpty ? "var(--text-dim)" : "var(--text-muted)"),
             fontSize: "calc(12px + var(--chat-font-size-offset, 0px))",
             lineHeight: 1.5,
             overflow: "auto",

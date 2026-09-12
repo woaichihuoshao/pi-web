@@ -40,7 +40,7 @@ test("renders one compact tool-style bar instead of the raw payload", () => {
 
 test("uses the success and failure tints of the tool card", () => {
   const done = renderNotice({ kind: "success", processName: "api", summary: "Process \"api\" succeeded after 6s.", exitCode: 0 });
-  assert.match(done, /rgba\(34,197,94,0.04\)/);
+  assert.match(done, /var\(--state-success-soft\)/);
   assert.match(done, /finished/);
   assert.match(done, /exit code 0/);
   assert.match(done, /6s/);

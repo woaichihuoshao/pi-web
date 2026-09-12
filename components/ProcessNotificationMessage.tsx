@@ -14,15 +14,15 @@ import {
  */
 const TONES = {
   success: {
-    border: "1px solid rgba(34,197,94,0.25)",
-    background: "rgba(34,197,94,0.04)",
-    accent: "#16a34a",
+    border: "1px solid var(--state-success-border)",
+    background: "var(--state-success-soft)",
+    accent: "var(--state-success)",
     glyph: "✓",
   },
   error: {
-    border: "1px solid rgba(248,113,113,0.45)",
-    background: "rgba(248,113,113,0.05)",
-    accent: "#f87171",
+    border: "1px solid var(--state-danger-border)",
+    background: "var(--state-danger-soft)",
+    accent: "var(--state-danger)",
     glyph: "!",
   },
   muted: {
