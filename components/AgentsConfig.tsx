@@ -64,7 +64,7 @@ const inputStyle: CSSProperties = {
   borderRadius: 5,
   background: "var(--bg)",
   color: "var(--text)",
-  fontSize: 12,
+  fontSize: "var(--font-sm)",
   outline: "none",
 };
 
@@ -129,7 +129,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function Toggle({ checked, disabled, label, onChange }: { checked: boolean; disabled: boolean; label: string; onChange: (checked: boolean) => void }) {
   return (
-    <label style={{ display: "flex", alignItems: "center", gap: 7, color: disabled ? "var(--text-dim)" : "var(--text-muted)", fontSize: 12, cursor: disabled ? "default" : "pointer" }}>
+    <label style={{ display: "flex", alignItems: "center", gap: 7, color: disabled ? "var(--text-dim)" : "var(--text-muted)", fontSize: "var(--font-sm)", cursor: disabled ? "default" : "pointer" }}>
       <input type="checkbox" checked={checked} disabled={disabled} onChange={(event) => onChange(event.target.checked)} />
       {label}
     </label>
@@ -552,7 +552,7 @@ export function AgentsConfig({
                             type="button"
                             onClick={() => setTargetScope(scope)}
                             disabled={saving}
-                            style={{ height: 28, border: "none", borderRadius: 4, background: targetScope === scope ? "var(--bg-selected)" : "transparent", color: targetScope === scope ? "var(--text)" : "var(--text-muted)", cursor: saving ? "default" : "pointer", fontSize: 11, fontWeight: targetScope === scope ? 600 : 400 }}
+                            style={{ height: 28, border: "none", borderRadius: 4, background: targetScope === scope ? "var(--bg-selected)" : "transparent", color: targetScope === scope ? "var(--text)" : "var(--text-muted)", cursor: saving ? "default" : "pointer", fontSize: "var(--font-xs)", fontWeight: targetScope === scope ? 600 : 400 }}
                           >
                             {t(`agents.scope.${scope}`)}
                           </button>

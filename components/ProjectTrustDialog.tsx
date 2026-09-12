@@ -65,10 +65,10 @@ export function ProjectTrustDialog({
             <path d="m9 12 2 2 4-4" />
           </svg>
           <div style={{ minWidth: 0 }}>
-            <div id="project-trust-title" style={{ fontSize: 15, fontWeight: 700, color: "var(--text)" }}>
+            <div id="project-trust-title" style={{ fontSize: "var(--font-read)", fontWeight: 700, color: "var(--text)" }}>
               {t("trust.dialogTitle")}
             </div>
-            <div style={{ marginTop: 7, fontSize: 12, lineHeight: 1.6, color: "var(--text-muted)" }}>
+            <div style={{ marginTop: 7, fontSize: "var(--font-sm)", lineHeight: 1.6, color: "var(--text-muted)" }}>
               {t("trust.dialogBody")}
             </div>
             <code
@@ -81,14 +81,14 @@ export function ProjectTrustDialog({
                 background: "var(--bg)",
                 color: "var(--text)",
                 fontFamily: "var(--font-mono)",
-                fontSize: 11,
+                fontSize: "var(--font-xs)",
                 overflowWrap: "anywhere",
               }}
             >
               {cwd}
             </code>
             {error && (
-              <div role="alert" style={{ marginTop: 10, color: "#ef4444", fontSize: 12, lineHeight: 1.5 }}>
+              <div role="alert" style={{ marginTop: 10, color: "#ef4444", fontSize: "var(--font-sm)", lineHeight: 1.5 }}>
                 {error}
               </div>
             )}
@@ -115,7 +115,7 @@ export function ProjectTrustDialog({
               background: "transparent",
               color: "var(--text-muted)",
               cursor: busy ? "not-allowed" : "pointer",
-              fontSize: 12,
+              fontSize: "var(--font-sm)",
             }}
           >
             {t("trust.cancel")}
@@ -133,7 +133,7 @@ export function ProjectTrustDialog({
               color: "var(--accent-contrast)",
               cursor: busy ? "wait" : "pointer",
               opacity: busy ? 0.7 : 1,
-              fontSize: 12,
+              fontSize: "var(--font-sm)",
               fontWeight: 600,
             }}
           >

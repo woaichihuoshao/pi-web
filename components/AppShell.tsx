@@ -1151,7 +1151,7 @@ export function AppShell() {
                 flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
                 height: 32, padding: 0, background: "none", border: "none",
                 borderRadius: 9, color: "var(--text-muted)", cursor: disabled ? "default" : "pointer",
-                fontSize: 12, opacity: disabled ? 0.35 : 1,
+                fontSize: "var(--font-sm)", opacity: disabled ? 0.35 : 1,
                 transition: "background 0.12s, color 0.12s",
               }}
               onMouseEnter={(event) => { if (!disabled) { event.currentTarget.style.background = "var(--bg-hover)"; event.currentTarget.style.color = "var(--text)"; } }}
@@ -1171,7 +1171,7 @@ export function AppShell() {
             flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
             height: 32, padding: 0, background: "none", border: "none",
             borderRadius: 9, color: "var(--text-muted)", cursor: "pointer",
-            fontSize: 12, transition: "background 0.12s, color 0.12s",
+            fontSize: "var(--font-sm)", transition: "background 0.12s, color 0.12s",
           }}
           onMouseEnter={(event) => { event.currentTarget.style.background = "var(--bg-hover)"; event.currentTarget.style.color = "var(--text)"; }}
           onMouseLeave={(event) => { event.currentTarget.style.background = "none"; event.currentTarget.style.color = "var(--text-muted)"; }}
@@ -1210,7 +1210,7 @@ export function AppShell() {
           color: "#d97706",
           cursor: "pointer",
           flexShrink: 0,
-          fontSize: 11,
+          fontSize: "var(--font-xs)",
           lineHeight: 1.35,
           textAlign: "left",
         }}
@@ -1266,7 +1266,7 @@ export function AppShell() {
             cursor: selectedSession ? "pointer" : "not-allowed",
             opacity: selectedSession ? 1 : 0.45,
             flexShrink: 0,
-            fontSize: 11,
+            fontSize: "var(--font-xs)",
             whiteSpace: "nowrap",
             transition: "color 0.1s, background 0.1s, opacity 0.1s",
           }}
@@ -1346,7 +1346,7 @@ export function AppShell() {
                 color: isError ? "var(--state-danger)" : isSuccess ? "var(--accent)" : disabled ? "var(--text-dim)" : "var(--text-muted)",
                 cursor: disabled ? "not-allowed" : "pointer",
                 opacity: disabled && autoNameStatus.kind !== "naming" ? 0.45 : 1,
-                flexShrink: 0, fontSize: 11, whiteSpace: "nowrap",
+                flexShrink: 0, fontSize: "var(--font-xs)", whiteSpace: "nowrap",
                 transition: "color 0.1s, background 0.1s, opacity 0.1s",
               }}
               onMouseEnter={(event) => {
@@ -1397,7 +1397,7 @@ export function AppShell() {
               borderTop: activeTopPanel === "agents" ? "2px solid var(--accent)" : "2px solid transparent",
               borderRight: "1px solid var(--border)",
               color: activeTopPanel === "agents" ? "var(--text)" : "var(--text-muted)",
-              cursor: "pointer", flexShrink: 0, fontSize: 11, whiteSpace: "nowrap",
+              cursor: "pointer", flexShrink: 0, fontSize: "var(--font-xs)", whiteSpace: "nowrap",
               transition: "color 0.1s, background 0.1s",
             }}
             data-mobile-toolbar-action={mobile ? "agents" : undefined}
@@ -1411,7 +1411,7 @@ export function AppShell() {
               style={{
                 minWidth: 15, height: 15, padding: "0 4px", display: "grid", placeItems: "center",
                 borderRadius: 7, background: "var(--bg-selected)", color: "var(--accent)",
-                fontSize: 10, lineHeight: 1, fontVariantNumeric: "tabular-nums",
+                fontSize: "var(--font-2xs)", lineHeight: 1, fontVariantNumeric: "tabular-nums",
                 ...(mobile ? { position: "absolute", top: 2, right: 2, minWidth: 13, height: 13, padding: "0 3px", fontSize: 9 } : {}),
               }}
             >
@@ -1476,7 +1476,7 @@ export function AppShell() {
             cursor: mobile && !showChat ? "not-allowed" : "pointer",
             color: activeTopPanel === "system" ? "var(--text)" : "var(--text-muted)",
             opacity: mobile && !showChat ? 0.45 : 1,
-            fontSize: 11, whiteSpace: "nowrap", transition: "color 0.1s, background 0.1s",
+            fontSize: "var(--font-xs)", whiteSpace: "nowrap", transition: "color 0.1s, background 0.1s",
           }}
           onMouseEnter={(event) => {
             if (mobile && !showChat) return;
@@ -1513,7 +1513,7 @@ export function AppShell() {
             cursor: mobile && !showChat ? "not-allowed" : "pointer",
             color: activeTopPanel === "tools" ? "var(--text)" : "var(--text-muted)",
             opacity: mobile && !showChat ? 0.45 : 1,
-            fontSize: 11, whiteSpace: "nowrap", transition: "color 0.1s, background 0.1s",
+            fontSize: "var(--font-xs)", whiteSpace: "nowrap", transition: "color 0.1s, background 0.1s",
           }}
           onMouseEnter={(event) => {
             if (mobile && !showChat) return;
@@ -1605,7 +1605,7 @@ export function AppShell() {
           background: activeTopPanel === "session" ? "var(--bg-selected)" : "none",
           border: "none",
           borderTop: activeTopPanel === "session" ? "2px solid var(--accent)" : "2px solid transparent",
-          fontSize: 11, color: "var(--text-muted)",
+          fontSize: "var(--font-xs)", color: "var(--text-muted)",
           whiteSpace: "nowrap", cursor: showChat ? "pointer" : "default",
           fontVariantNumeric: "tabular-nums",
           transition: "color 0.1s, background 0.1s",
@@ -2088,7 +2088,7 @@ export function AppShell() {
                       compact = false,
                     ) => (
                         <div style={{ minWidth: 0 }}>
-                          <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text)", marginBottom: 6 }}>{title}</div>
+                          <div style={{ fontSize: "var(--font-xs)", fontWeight: 700, color: "var(--text)", marginBottom: 6 }}>{title}</div>
                           <div style={{
                             display: "grid",
                             gridTemplateColumns: compact ? "max-content max-content" : "auto minmax(0, 1fr)",
@@ -2167,7 +2167,7 @@ export function AppShell() {
                     };
                     const sessionInfoSection = (
                       <div style={{ minWidth: 0 }}>
-                         <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text)", marginBottom: 6 }}>{translate("session.infoSection")}</div>
+                         <div style={{ fontSize: "var(--font-xs)", fontWeight: 700, color: "var(--text)", marginBottom: 6 }}>{translate("session.infoSection")}</div>
                         <div style={{ display: "grid", gridTemplateColumns: "auto minmax(0, 1fr) auto", columnGap: 12, rowGap: 8, alignItems: "start" }}>
                           {sessionRows.map((row) => (
                             <div key={`session-info:${row.label}`} style={{ display: "contents" }}>
@@ -2187,7 +2187,7 @@ export function AppShell() {
                     );
                     const projectInfoSection = projectRows.length > 0 ? (
                       <div style={{ minWidth: 0 }}>
-                        <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text)", marginBottom: 6 }}>{translate("session.projectSection")}</div>
+                        <div style={{ fontSize: "var(--font-xs)", fontWeight: 700, color: "var(--text)", marginBottom: 6 }}>{translate("session.projectSection")}</div>
                         <div style={{ display: "grid", gridTemplateColumns: "auto minmax(0, 1fr) auto", columnGap: 12, rowGap: 8, alignItems: "start" }}>
                           {projectRows.map((row) => (
                             <div key={`project-info:${row.label}`} style={{ display: "contents" }}>
@@ -2213,7 +2213,7 @@ export function AppShell() {
                           ? "1fr"
                           : "minmax(360px, 1.7fr) minmax(140px, 0.55fr) minmax(190px, 0.75fr)",
                         gap: isMobile ? 16 : 24,
-                        fontSize: 12,
+                        fontSize: "var(--font-sm)",
                         lineHeight: 1.5,
                         fontFamily: "var(--font-mono)",
                       }}>
@@ -2226,7 +2226,7 @@ export function AppShell() {
                       </div>
                     );
                   })() : (
-                    <div style={{ fontSize: 12, color: "var(--text-muted)", fontStyle: "italic" }}>
+                    <div style={{ fontSize: "var(--font-sm)", color: "var(--text-muted)", fontStyle: "italic" }}>
                        {translate("session.load")}
                     </div>
                   )}
@@ -2281,7 +2281,7 @@ export function AppShell() {
               role="status"
               style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, padding: 24, color: "var(--text-muted)", textAlign: "center" }}
             >
-               <div style={{ fontSize: 14, color: "var(--text)" }}>{translate("workspace.opening")}</div>
+               <div style={{ fontSize: "var(--font-body)", color: "var(--text)" }}>{translate("workspace.opening")}</div>
               <div style={{ maxWidth: "min(720px, 100%)", overflowWrap: "anywhere", fontFamily: "var(--font-mono)", fontSize: 12 }}>
                 {initialNavigation.requestedCwd}
               </div>
@@ -2291,7 +2291,7 @@ export function AppShell() {
               role="alert"
               style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, padding: 24, color: "var(--text-muted)", textAlign: "center" }}
             >
-               <div style={{ fontSize: 14, color: "var(--state-danger)" }}>{translate("workspace.unable")}</div>
+               <div style={{ fontSize: "var(--font-body)", color: "var(--state-danger)" }}>{translate("workspace.unable")}</div>
               <div style={{ maxWidth: "min(720px, 100%)", overflowWrap: "anywhere", fontFamily: "var(--font-mono)", fontSize: 12 }}>
                 {initialNavigation.requestedCwd}
               </div>
@@ -2309,7 +2309,7 @@ export function AppShell() {
                 </svg>
                 <div>
                    <div style={{ fontSize: 18, fontWeight: 600, color: "var(--text)", marginBottom: 8 }}>{translate("workspace.getStarted")}</div>
-                  <div style={{ fontSize: 12, color: "var(--text-muted)", lineHeight: 1.8 }}>
+                  <div style={{ fontSize: "var(--font-sm)", color: "var(--text-muted)", lineHeight: 1.8 }}>
                      <span style={{ color: "var(--text-dim)", marginRight: 6 }}>1.</span>{translate("workspace.selectProject")}<br />
                      <span style={{ color: "var(--text-dim)", marginRight: 6 }}>2.</span>{translate("workspace.addModels")}
                   </div>

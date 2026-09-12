@@ -101,7 +101,7 @@ export function VoiceInputButton({ textareaRef, value, setValue }: Props) {
           aria-label={`${t("chat.voiceRecording")} ${duration}`}
           style={{
             color: "var(--state-danger)",
-            fontSize: 12,
+            fontSize: "var(--font-sm)",
             fontVariantNumeric: "tabular-nums",
             letterSpacing: "0.01em",
           }}
@@ -119,7 +119,7 @@ export function VoiceInputButton({ textareaRef, value, setValue }: Props) {
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
             color: "var(--state-danger)",
-            fontSize: 12,
+            fontSize: "var(--font-sm)",
           }}
         >
           {failure}

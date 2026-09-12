@@ -37,7 +37,7 @@ export function ProcessWidgetContent({ summary }: { summary: ProcessStatusSummar
       {summary.entries.map((entry, index) => (
         <div
           key={`${entry.state}-${entry.name}-${index}`}
-          style={{ display: "flex", alignItems: "baseline", gap: 7, fontSize: 12.5, lineHeight: 1.6 }}
+          style={{ display: "flex", alignItems: "baseline", gap: 7, fontSize: "var(--font-ui)", lineHeight: 1.6 }}
         >
           <span style={{ color: STATE_COLORS[entry.state], fontFamily: "var(--font-mono)" }} aria-hidden="true">
             {STATE_GLYPHS[entry.state]}

@@ -89,7 +89,7 @@ function ProviderUsageContent({ providerId, enabled }: { providerId: string; ena
   return (
     <section style={{ paddingTop: 10, display: "flex", flexDirection: "column", gap: 10 }}>
       <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-        <span style={{ fontSize: 13, color: "var(--text)", fontWeight: 600, lineHeight: 1.35 }}>{t("providerUsage.usage")}</span>
+        <span style={{ fontSize: "var(--font-ui)", color: "var(--text)", fontWeight: 600, lineHeight: 1.35 }}>{t("providerUsage.usage")}</span>
         <button
           type="button"
           onClick={query}
@@ -109,11 +109,11 @@ function ProviderUsageContent({ providerId, enabled }: { providerId: string; ena
             </svg>
           )}
         </button>
-        {report && <span style={{ fontSize: 11, color: "var(--text-dim)", whiteSpace: "nowrap" }}>{t("providerUsage.updated", { time: formatUpdated(report.capturedAt) })}</span>}
+        {report && <span style={{ fontSize: "var(--font-xs)", color: "var(--text-dim)", whiteSpace: "nowrap" }}>{t("providerUsage.updated", { time: formatUpdated(report.capturedAt) })}</span>}
       </div>
 
-      {!report && !error && <span style={{ fontSize: 12, color: "var(--text-dim)" }}>{t("providerUsage.notQueried")}</span>}
-      {error && <span style={{ fontSize: 12, color: "#f87171" }}>{error}</span>}
+      {!report && !error && <span style={{ fontSize: "var(--font-sm)", color: "var(--text-dim)" }}>{t("providerUsage.notQueried")}</span>}
+      {error && <span style={{ fontSize: "var(--font-sm)", color: "#f87171" }}>{error}</span>}
       {report && (
         <div style={{ display: "grid", gridTemplateColumns: "180px minmax(0, 1fr)", columnGap: 14, rowGap: 8, alignItems: "baseline", minWidth: 0, width: "min(100%, 420px)", maxWidth: "100%", fontSize: 12 }}>
           {report.buckets.map((bucket) => (

@@ -38,6 +38,15 @@
   --tool-bg: #f9fafb;
   --bg-subtle: rgba(0,0,0,0.03);
   /* 组件结构 token：默认 = pi-web 现有观感，DeepSeek 主题按官网真值覆盖 */
+  /* 字号层级 token：默认 = pi-web 现有观感，DeepSeek 主题按排版规格统一提升一档
+     （规格：超小 11 / metadata 12 / caption 13 / 按钮·卡片正文 14 / UI 正文 15 / 阅读正文 16） */
+  --font-3xs: 9px;
+  --font-2xs: 10px;
+  --font-xs: 11px;
+  --font-sm: 12px;
+  --font-ui: 13px;
+  --font-body: 14px;
+  --font-read: 15px;
   --shadow-popover: 0 4px 16px rgba(0,0,0,0.10);
   --shadow-dialog: 0 12px 32px rgba(0,0,0,0.18);
   --shadow-composer: 0 1px 2px rgba(15,23,42,0.04), 0 8px 24px -12px rgba(15,23,42,0.10);
@@ -213,6 +222,13 @@ html[data-theme="deepseek"],
      复制按钮无边框、内容区 padding 16px */
   /* 极轻阴影（原则：阴影默认没有或极轻，不做"营销卡片"那种大投影） */
   --shadow-popover: 0 2px 8px rgba(0,0,0,0.32);
+  --font-3xs: 11px;
+  --font-2xs: 11px;
+  --font-xs: 12px;
+  --font-sm: 13px;
+  --font-ui: 14px;
+  --font-body: 15px;
+  --font-read: 16px;
   --shadow-dialog: 0 6px 20px rgba(0,0,0,0.40);
   --shadow-composer: none;
   --inline-code-bg: #2c2c2e;
@@ -289,6 +305,13 @@ html[data-theme="deepseek-light"],
   --ui-menu-padding: 4px;
   --ui-menu-item-height: 24px;
   --shadow-popover: 0 2px 8px rgba(0,0,0,0.06);
+  --font-3xs: 11px;
+  --font-2xs: 11px;
+  --font-xs: 12px;
+  --font-sm: 13px;
+  --font-ui: 14px;
+  --font-body: 15px;
+  --font-read: 16px;
   --shadow-dialog: 0 6px 20px rgba(0,0,0,0.10);
   --shadow-composer: none;
   --inline-code-bg: #ebeef2;
@@ -495,7 +518,7 @@ html, body {
   background: var(--bg);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 14px;
+  font-size: var(--font-body);
   overscroll-behavior: none;
 }
 
@@ -538,7 +561,7 @@ body {
 .web-login-brand p {
   margin: 0;
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: var(--font-sm);
 }
 
 .web-login-form {
@@ -596,7 +619,7 @@ body {
   min-height: 17px;
   margin: 7px 4px 0;
   color: #dc2626;
-  font-size: 11px;
+  font-size: var(--font-xs);
   line-height: 17px;
 }
 
@@ -617,7 +640,7 @@ html.dark .web-login-error {
   color: var(--accent-contrast);
   cursor: pointer;
   font: inherit;
-  font-size: 13px;
+  font-size: var(--font-ui);
   font-weight: 600;
   letter-spacing: 0;
 }
@@ -657,7 +680,7 @@ html.dark .web-login-error {
   background: #181b21;
   color: #9ca3af;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--font-xs);
 }
 
 .terminal-panel-path {
@@ -704,7 +727,7 @@ html.dark .web-login-error {
   padding: 7px 12px;
   color: #9ca3af;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--font-xs);
 }
 
 .terminal-panel-header button:hover {
@@ -718,7 +741,7 @@ html.dark .web-login-error {
   background: #321b1b;
   color: #fca5a5;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--font-xs);
 }
 
 .terminal-xterm {
@@ -791,7 +814,7 @@ html.dark .web-login-error {
   overflow: hidden;
   color: var(--text);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--font-xs);
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -835,7 +858,7 @@ html.dark .web-login-error {
   background: var(--bg-panel);
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--font-xs);
   text-align: left;
 }
 
@@ -932,7 +955,7 @@ button.extension-widget-trigger:focus-visible {
   padding: 3px 12px 8px;
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: 14px;
+  font-size: var(--font-body);
   line-height: 1.45;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
@@ -960,7 +983,7 @@ button.extension-widget-trigger:focus-visible {
   min-width: 0;
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--font-xs);
   line-height: 1.45;
   white-space: pre;
 }
@@ -1213,7 +1236,7 @@ pre, code {
   padding-top: 8px;
   border-top: 1px solid var(--border);
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: var(--font-sm);
 }
 .compaction-file-details summary {
   cursor: pointer;
@@ -1226,7 +1249,7 @@ pre, code {
 .compaction-file-title {
   margin-bottom: 4px;
   color: var(--text);
-  font-size: 11px;
+  font-size: var(--font-xs);
   font-weight: 650;
 }
 .compaction-file-list {
@@ -1238,7 +1261,7 @@ pre, code {
   border-radius: 6px;
   background: var(--bg-panel);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--font-xs);
   line-height: 1.45;
   list-style: none;
 }
@@ -1290,7 +1313,7 @@ pre, code {
   color: var(--text-muted);
   cursor: pointer;
   font: inherit;
-  font-size: 11px;
+  font-size: var(--font-xs);
   line-height: 1.25;
 }
 .markdown-code-action:hover:not(:disabled) {
@@ -1322,7 +1345,7 @@ pre, code {
 .mermaid-block-error {
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--font-sm);
 }
 
 .mermaid-preview-button {
@@ -1450,7 +1473,7 @@ pre, code {
   overflow: hidden;
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--font-xs);
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1515,7 +1538,7 @@ pre, code {
   height: 22px;
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--font-sm);
   line-height: 22px;
   text-align: center;
   user-select: none;
@@ -1549,7 +1572,7 @@ pre, code {
   }
 
   .mermaid-zoom-title {
-    font-size: 10px;
+    font-size: var(--font-2xs);
   }
 
   .mermaid-zoom-viewport {
@@ -1616,7 +1639,7 @@ pre, code {
   border: 0;
   border-left: 1px solid var(--border);
   font: inherit;
-  font-size: 11px;
+  font-size: var(--font-xs);
   font-weight: 500;
   letter-spacing: 0;
   cursor: pointer;
@@ -1715,7 +1738,7 @@ pre, code {
   padding: 12px 16px;
   overflow-x: auto;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: var(--font-ui);
   margin: 12px 0;
 }
 .markdown-file-preview code {
@@ -1751,7 +1774,7 @@ pre, code {
   margin-top: 8px;
 }
 .markdown-frontmatter-tag {
-  font-size: 12px;
+  font-size: var(--font-sm);
   line-height: 1.6;
   color: var(--text-muted);
   background: var(--bg-subtle);
@@ -1764,7 +1787,7 @@ pre, code {
   grid-template-columns: auto 1fr;
   gap: 5px 14px;
   margin: 10px 0 0;
-  font-size: 13px;
+  font-size: var(--font-ui);
   line-height: 1.55;
 }
 .markdown-frontmatter-row {

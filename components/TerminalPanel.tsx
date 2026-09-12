@@ -47,7 +47,7 @@ export function TerminalPanel({ tab, active, onRestart, onClosed, onCloseError }
     const terminal = new Terminal({
       cursorBlink: true,
       fontFamily: terminalFontFamily(getComputedStyle(container).getPropertyValue("--font-mono").trim()),
-      fontSize: 13,
+      fontSize: 13, // xterm 要求数字
       lineHeight: 1.25,
       scrollback: 8000,
       screenReaderMode: true,

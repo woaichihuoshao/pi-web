@@ -88,7 +88,7 @@ test("groups chat display controls together without row backgrounds", () => {
   }
   assert.doesNotMatch(panelSource, /ThinkingIcon|settings-thinking-/);
   const chatOptionStyles = cssSource.match(/\.settings-chat-option \{[\s\S]*?\}/)?.[0] ?? "";
-  assert.match(chatOptionStyles, /font-size: 12px/);
+  assert.match(chatOptionStyles, /font-size: var\(--font-sm\)/);
   assert.doesNotMatch(chatOptionStyles, /background/);
 });
 

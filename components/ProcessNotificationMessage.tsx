@@ -71,10 +71,10 @@ export function ProcessNotificationMessage({ view }: { view: ProcessNotification
     <div style={{ marginBottom: 10 }}>
       <div
         title={tooltip || undefined}
-        style={{ borderRadius: 7, overflow: "hidden", fontSize: 12, border: tone.border, background: tone.background }}
+        style={{ borderRadius: 7, overflow: "hidden", fontSize: "var(--font-sm)", border: tone.border, background: tone.background }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0, padding: "6px 10px" }}>
-          <span style={{ flexShrink: 0, color: tone.accent, fontFamily: "var(--font-mono)", fontSize: 11, fontWeight: 600 }}>
+          <span style={{ flexShrink: 0, color: tone.accent, fontFamily: "var(--font-mono)", fontSize: "var(--font-xs)", fontWeight: 600 }}>
             process
           </span>
           <span
@@ -84,7 +84,7 @@ export function ProcessNotificationMessage({ view }: { view: ProcessNotification
               overflow: "hidden",
               color: "var(--text)",
               fontFamily: "var(--font-mono)",
-              fontSize: 11,
+              fontSize: "var(--font-xs)",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
             }}
@@ -98,7 +98,7 @@ export function ProcessNotificationMessage({ view }: { view: ProcessNotification
               overflow: "hidden",
               color: "var(--text-dim)",
               fontFamily: "var(--font-mono)",
-              fontSize: 11,
+              fontSize: "var(--font-xs)",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
             }}

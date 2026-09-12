@@ -129,14 +129,14 @@ function AgentRow({
         )}
       </span>
       <span style={{ minWidth: 0 }}>
-        <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 12, fontWeight: selected ? 600 : 500 }} title={primary}>
+        <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: "var(--font-sm)", fontWeight: selected ? 600 : 500 }} title={primary}>
           {primary}
         </span>
         <span style={{ display: "block", marginTop: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text-dim)", fontSize: 11 }} title={secondary}>
           {secondary}
         </span>
       </span>
-      <span style={{ display: "flex", alignItems: "center", gap: 6, color: main && !running ? "var(--text-dim)" : statusColor(status), fontSize: 11, whiteSpace: "nowrap" }}>
+      <span style={{ display: "flex", alignItems: "center", gap: 6, color: main && !running ? "var(--text-dim)" : statusColor(status), fontSize: "var(--font-xs)", whiteSpace: "nowrap" }}>
         {main && !running ? (
           selected ? t("agentSwitcher.current") : null
         ) : (
@@ -185,7 +185,7 @@ export function AgentSessionPanel({ rootSession, subagents, selectedSessionId, r
     >
       <div>
         <div style={{ minHeight: 44, display: "flex", alignItems: "center", gap: 8, padding: "7px 12px", borderBottom: "1px solid var(--border)" }}>
-          <strong style={{ fontSize: 12, fontWeight: 600 }}>{t("agentSwitcher.title")}</strong>
+          <strong style={{ fontSize: "var(--font-sm)", fontWeight: 600 }}>{t("agentSwitcher.title")}</strong>
           <span style={{ color: "var(--text-dim)", fontSize: 11 }}>
             {t("agentSwitcher.count", { count: subagents.length })}
           </span>
@@ -206,7 +206,7 @@ export function AgentSessionPanel({ rootSession, subagents, selectedSessionId, r
               style={{
                 width: "100%", height: 32, padding: "0 10px",
                 border: "1px solid var(--border)", borderRadius: 6,
-                background: "var(--bg)", color: "var(--text)", fontSize: 12, outline: "none",
+                background: "var(--bg)", color: "var(--text)", fontSize: "var(--font-sm)", outline: "none",
               }}
             />
           </div>
@@ -229,7 +229,7 @@ export function AgentSessionPanel({ rootSession, subagents, selectedSessionId, r
             />
           ))}
           {visibleSubagents.length === 0 && (
-            <div style={{ padding: "22px 12px", color: "var(--text-dim)", fontSize: 12, textAlign: "center" }}>
+            <div style={{ padding: "22px 12px", color: "var(--text-dim)", fontSize: "var(--font-sm)", textAlign: "center" }}>
               {t("agentSwitcher.noMatches")}
             </div>
           )}
