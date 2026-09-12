@@ -205,7 +205,7 @@ function ProcessDetailsGroup({ messageCount, toolCallCount, defaultExpanded = fa
   if (toolCallCount > 0) parts.push(`${toolCallCount} ${t(toolCallCount === 1 ? "chat.toolCall" : "chat.toolCalls")}`);
 
   return (
-    <div style={{ marginBottom: 14 }}>
+    <div style={{ marginBottom: 24 }}>
       <button
         type="button"
         aria-expanded={expanded || reveal}
@@ -215,13 +215,14 @@ function ProcessDetailsGroup({ messageCount, toolCallCount, defaultExpanded = fa
           alignItems: "center",
           gap: 8,
           width: "auto",
-          minHeight: 24,
-          padding: "2px 0",
+          minHeight: 32,
+          padding: "0 0 12px",
           border: "none",
+          borderBottom: "1px solid var(--border-subtle)",
           background: "transparent",
-          color: "var(--text-muted)",
+          color: "var(--text-dim)",
           cursor: "pointer",
-          fontSize: "var(--font-sm)",
+          fontSize: 14,
           textAlign: "left",
         }}
         title={expanded ? t("chat.collapseProcess") : t("chat.expandProcess")}
