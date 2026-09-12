@@ -207,6 +207,7 @@ html[data-theme="deepseek"],
   --border-subtle: rgba(255,255,255,0.08);
   --ui-radius-action: 10px;
   --tool-row-border: rgba(255,255,255,0.08);
+  --chat-content-max-width: 1000px;
   --agent-row-hover: rgba(255,255,255,0.05);
   --border-strong: rgba(255,255,255,0.20);
   /* 分隔线几乎不可见；列表项不画边框（靠底色差区分） */
@@ -305,6 +306,7 @@ html[data-theme="deepseek-light"],
   --border-subtle: rgba(0,0,0,0.06);
   --ui-radius-action: 10px;
   --tool-row-border: rgba(0,0,0,0.07);
+  --chat-content-max-width: 1000px;
   --agent-row-hover: rgba(0,0,0,0.035);
   --border-strong: rgba(0,0,0,0.16);
   --divider: 1px solid rgba(0,0,0,0.04);
