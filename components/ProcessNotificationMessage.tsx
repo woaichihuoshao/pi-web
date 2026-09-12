@@ -1,58 +1,69 @@
 "use client";
 
-import { useI18n } from "@/hooks/useI18n";
-import type { TranslationParams } from "@/lib/i18n/types";
 import {
   processNotificationTone,
+  type ProcessNotificationKind,
   type ProcessNotificationView,
 } from "@/lib/process-notification";
 
-const TONE_COLORS: Record<ReturnType<typeof processNotificationTone>, string> = {
-  success: "#16a34a",
-  error: "#dc2626",
-  muted: "var(--text-dim)",
-  accent: "var(--accent)",
+/**
+ * The visual language of a tool-call header row (see ToolCallBlock): a 7px
+ * rounded box, green for success, red for failures, one compact line.
+ * Process notifications reuse it so a finished process looks like any other
+ * command result instead of a separate card style.
+ */
+const TONES = {
+  success: {
+    border: "1px solid rgba(34,197,94,0.25)",
+    background: "rgba(34,197,94,0.04)",
+    accent: "#16a34a",
+    glyph: "✓",
+  },
+  error: {
+    border: "1px solid rgba(248,113,113,0.45)",
+    background: "rgba(248,113,113,0.05)",
+    accent: "#f87171",
+    glyph: "!",
+  },
+  muted: {
+    border: "1px solid var(--border)",
+    background: "transparent",
+    accent: "var(--text-dim)",
+    glyph: "■",
+  },
+  accent: {
+    border: "1px solid color-mix(in srgb, var(--accent) 35%, var(--border))",
+    background: "color-mix(in srgb, var(--accent) 5%, transparent)",
+    accent: "var(--accent)",
+    glyph: "●",
+  },
+} as const;
+
+/** English state words, deliberately not translated. */
+const HEADLINES: Record<ProcessNotificationKind, string> = {
+  success: "finished",
+  failure: "failed",
+  crash: "crashed",
+  killed: "terminated",
+  log_match: "log matched",
+  log_match_suppressed: "log matched (muted)",
 };
 
-const TONE_GLYPHS: Record<ReturnType<typeof processNotificationTone>, string> = {
-  success: "✓",
-  error: "!",
-  muted: "■",
-  accent: "●",
-};
-
-function formatElapsed(
-  t: (key: string, params?: TranslationParams) => string,
-  seconds: number,
-): string {
-  if (seconds < 60) return t("process.elapsedSeconds", { seconds: Math.round(seconds) });
-  const minutes = Math.floor(seconds / 60);
-  return t("process.elapsedMinutes", { minutes, seconds: Math.round(seconds % 60) });
+function formatElapsed(seconds: number): string {
+  if (seconds < 60) return `${Math.round(seconds)}s`;
+  return `${Math.floor(seconds / 60)}m ${Math.round(seconds % 60)}s`;
 }
 
-/**
- * One-line notice for a `pi-processes` notification.
- *
- * The extension's message body is an English XML block and its `details` payload
- * is JSON; neither reads well in a transcript, and a process finishing does not
- * deserve more than a line. The full command and the extension's own sentence
- * stay in the tooltip.
- */
 export function ProcessNotificationMessage({ view }: { view: ProcessNotificationView }) {
-  const { t } = useI18n();
+  const tone = TONES[processNotificationTone(view.kind)];
 
-  const tone = processNotificationTone(view.kind);
-  const color = TONE_COLORS[tone];
-  const meta: string[] = [];
-  if (view.exitCode !== null) meta.push(t("process.exitCode", { code: view.exitCode }));
-  if (view.elapsedSeconds !== null) meta.push(formatElapsed(t, view.elapsedSeconds));
+  const details: string[] = [HEADLINES[view.kind]];
+  if (view.exitCode !== null) details.push(`exit code ${view.exitCode}`);
+  if (view.elapsedSeconds !== null) details.push(formatElapsed(view.elapsedSeconds));
   if (view.signalName) {
-    meta.push(t("process.signal", {
-      name: view.signalName,
-      number: view.signalNumber === null ? "" : view.signalNumber,
-    }));
+    details.push(`signal ${view.signalName}${view.signalNumber === null ? "" : ` ${view.signalNumber}`}`);
   }
-  if (view.endReason) meta.push(t("process.endReason", { reason: view.endReason }));
+  if (view.logMatch) details.push(`pattern ${view.logMatch.pattern}`);
 
   const tooltip = [view.summary, view.command].filter(Boolean).join("\n");
 
@@ -60,45 +71,44 @@ export function ProcessNotificationMessage({ view }: { view: ProcessNotification
     <div style={{ marginBottom: 10 }}>
       <div
         title={tooltip || undefined}
-        style={{
-          display: "flex",
-          maxWidth: "100%",
-          alignItems: "center",
-          gap: 8,
-          padding: "4px 10px",
-          border: `1px solid color-mix(in srgb, ${color} 35%, var(--border))`,
-          borderRadius: 999,
-          background: `color-mix(in srgb, ${color} 8%, var(--bg-panel))`,
-          color: "var(--text-muted)",
-          fontSize: 12,
-        }}
+        style={{ borderRadius: 7, overflow: "hidden", fontSize: 12, border: tone.border, background: tone.background }}
       >
-        <span style={{ color, fontFamily: "var(--font-mono)", fontWeight: 700 }} aria-hidden="true">
-          {TONE_GLYPHS[tone]}
-        </span>
-        <span style={{ color: "var(--text)", fontWeight: 600, whiteSpace: "nowrap" }}>
-          {t(`process.notice.${view.kind}`)}
-        </span>
-        <span style={{ overflow: "hidden", color: "var(--text)", fontFamily: "var(--font-mono)", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-          {view.processName}
-        </span>
-        {meta.length > 0 && (
-          <span style={{ whiteSpace: "nowrap" }}>{meta.join(" · ")}</span>
-        )}
-        {view.logMatch && (
+        <div style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0, padding: "6px 10px" }}>
+          <span style={{ flexShrink: 0, color: tone.accent, fontFamily: "var(--font-mono)", fontSize: 11, fontWeight: 600 }}>
+            process
+          </span>
           <span
             style={{
-              minWidth: 0,
+              flexShrink: 0,
+              maxWidth: "45%",
               overflow: "hidden",
-              color: "var(--text-muted)",
+              color: "var(--text)",
               fontFamily: "var(--font-mono)",
+              fontSize: 11,
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
             }}
           >
-            {t("process.pattern", { pattern: view.logMatch.pattern })}
+            {view.processName}
           </span>
-        )}
+          <span
+            style={{
+              flex: 1,
+              minWidth: 0,
+              overflow: "hidden",
+              color: "var(--text-dim)",
+              fontFamily: "var(--font-mono)",
+              fontSize: 11,
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {details.join(" · ")}
+          </span>
+          <span style={{ flexShrink: 0, color: tone.accent, fontFamily: "var(--font-mono)", fontSize: 11 }} aria-hidden="true">
+            {tone.glyph}
+          </span>
+        </div>
       </div>
     </div>
   );
