@@ -119,25 +119,47 @@ html[data-theme="pine"],
   --bg-subtle: rgba(210,236,219,0.04);
 }
 
-/* DeepSeek：品牌蓝 #4d6bfe + 深空蓝灰底 */
+/* DeepSeek 深蓝：对齐官方设计文档的暗色值（画布 #0E0E10，用户气泡 #1E2240，
+   唯一饱和色是品牌蓝 #4D6BFE，其余为克制的中性灰阶）*/
 html[data-theme="deepseek"],
 [data-theme="deepseek"] {
   color-scheme: dark;
-  --bg: #0f1117;
-  --bg-panel: #171a23;
-  --bg-hover: #1f2431;
-  --bg-selected: #262c3c;
-  --border: #2c3346;
-  --text: #e7eaf3;
-  --text-muted: #aeb6cc;
-  --text-dim: #8c95ae;
+  --bg: #0e0e10;
+  --bg-panel: #16171a;
+  --bg-hover: #232428;
+  --bg-selected: #2e2f33;
+  --border: #2e2f33;
+  --text: #ececec;
+  --text-muted: #9a9ba0;
+  --text-dim: #8a8b90;
   --accent: #4d6bfe;
   --accent-hover: #6b85ff;
   --accent-contrast: #ffffff;
-  --user-bg: #1b2340;
-  --assistant-bg: #0f1117;
-  --tool-bg: #171c2a;
-  --bg-subtle: rgba(120,150,255,0.05);
+  --user-bg: #1e2240;
+  --assistant-bg: #0e0e10;
+  --tool-bg: #16171a;
+  --bg-subtle: rgba(255,255,255,0.04);
+}
+
+/* DeepSeek 晴蓝：官方浅色画布为纯白，选区用品牌浅蓝 #EAEEFE，文字走中性灰阶 */
+html[data-theme="deepseek-light"],
+[data-theme="deepseek-light"] {
+  color-scheme: light;
+  --bg: #ffffff;
+  --bg-panel: #f7f8fa;
+  --bg-hover: #eef0f4;
+  --bg-selected: #eaeefe;
+  --border: #ececec;
+  --text: #1a1b1e;
+  --text-muted: #6a6b70;
+  --text-dim: #8a8b90;
+  --accent: #4d6bfe;
+  --accent-hover: #3b57e0;
+  --accent-contrast: #ffffff;
+  --user-bg: #eaeefe;
+  --assistant-bg: #ffffff;
+  --tool-bg: #f5f7fb;
+  --bg-subtle: rgba(77,107,254,0.05);
 }
 
 /* WebKit reports dvh/innerHeight without the status-bar strip for installed

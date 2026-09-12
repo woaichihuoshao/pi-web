@@ -5,6 +5,7 @@ export const THEME_OPTIONS = [
   { id: "rose", label: "settings.themeRose" },
   { id: "pine", label: "settings.themePine" },
   { id: "deepseek", label: "settings.themeDeepSeek" },
+  { id: "deepseek-light", label: "settings.themeDeepSeekLight" },
   { id: "auto", label: "settings.themeSystem" },
 ] as const;
 
