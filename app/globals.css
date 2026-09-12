@@ -38,6 +38,18 @@
   --tool-bg: #f9fafb;
   --bg-subtle: rgba(0,0,0,0.03);
   /* 组件结构 token：默认 = pi-web 现有观感，DeepSeek 主题按官网真值覆盖 */
+  --code-block-bg: var(--bg);
+  --code-block-banner-bg: var(--bg-panel);
+  --code-block-border: 1px solid var(--border);
+  --code-block-radius: 7px;
+  --code-block-shadow: 0 1px 0 color-mix(in srgb, var(--border) 42%, transparent);
+  --code-block-header-padding: 5px 10px;
+  --code-block-header-border: 1px solid var(--border);
+  --code-block-header-font-size: 11px;
+  --code-block-lang-weight: 650;
+  --code-block-action-border: 1px solid var(--border);
+  --code-block-action-padding: 2px 7px;
+  --code-block-pre-padding: 11px 13px;
   --table-wrap-border: 1px solid var(--border);
   --table-wrap-radius: 7px;
   --table-row-border: var(--border);
@@ -194,6 +206,20 @@ html[data-theme="deepseek"],
   --ui-menu-padding: 4px;
   --ui-menu-item-height: 24px;
   /* 官网表格：无外框/无竖线/无表头底色/无斑马纹；表头行线 l3、数据行线 l2、首列左对齐正文 */
+  /* 官网代码块：底 #1B1B1C、头部 #2C2C2E（无分隔线、无外框）、头部 9px 14px / 13px、
+     复制按钮无边框、内容区 padding 16px */
+  --code-block-bg: #1b1b1c;
+  --code-block-banner-bg: #2c2c2e;
+  --code-block-border: none;
+  --code-block-radius: 12px;
+  --code-block-shadow: none;
+  --code-block-header-padding: 9px 14px;
+  --code-block-header-border: none;
+  --code-block-header-font-size: 13px;
+  --code-block-lang-weight: 400;
+  --code-block-action-border: none;
+  --code-block-action-padding: 0;
+  --code-block-pre-padding: 16px;
   --table-wrap-border: none;
   --table-wrap-radius: 0;
   --table-row-border: rgba(255,255,255,0.12);
@@ -254,6 +280,18 @@ html[data-theme="deepseek-light"],
   --ui-bubble-padding: 10px 16px;
   --ui-menu-padding: 4px;
   --ui-menu-item-height: 24px;
+  --code-block-bg: #f9fafb;
+  --code-block-banner-bg: #f9fafb;
+  --code-block-border: none;
+  --code-block-radius: 12px;
+  --code-block-shadow: none;
+  --code-block-header-padding: 9px 14px;
+  --code-block-header-border: none;
+  --code-block-header-font-size: 13px;
+  --code-block-lang-weight: 400;
+  --code-block-action-border: none;
+  --code-block-action-padding: 0;
+  --code-block-pre-padding: 16px;
   --table-wrap-border: none;
   --table-wrap-radius: 0;
   --table-row-border: rgba(0,0,0,0.10);
@@ -1213,18 +1251,18 @@ pre, code {
   min-width: 0;
   max-width: 100%;
   margin: 6px 0;
-  border: 1px solid var(--border);
-  border-radius: 7px;
+  border: var(--code-block-border);
+  border-radius: var(--code-block-radius);
   overflow: hidden;
-  background: var(--bg);
-  box-shadow: 0 1px 0 color-mix(in srgb, var(--border) 42%, transparent);
+  background: var(--code-block-bg);
+  box-shadow: var(--code-block-shadow);
 }
 .markdown-code-header {
-  padding: 5px 10px;
-  background: var(--bg-panel);
-  border-bottom: 1px solid var(--border);
+  padding: var(--code-block-header-padding);
+  background: var(--code-block-banner-bg);
+  border-bottom: var(--code-block-header-border);
   color: var(--text-dim);
-  font-size: 11px;
+  font-size: var(--code-block-header-font-size);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1233,7 +1271,7 @@ pre, code {
 .markdown-code-lang {
   color: var(--text-muted);
   font-family: var(--font-mono);
-  font-weight: 650;
+  font-weight: var(--code-block-lang-weight);
 }
 .markdown-code-actions {
   display: flex;
@@ -1241,9 +1279,9 @@ pre, code {
   gap: 6px;
 }
 .markdown-code-action {
-  border: 1px solid var(--border);
+  border: var(--code-block-action-border);
   border-radius: 5px;
-  padding: 2px 7px;
+  padding: var(--code-block-action-padding);
   background: var(--bg);
   color: var(--text-muted);
   cursor: pointer;
@@ -2071,4 +2109,12 @@ span.token.table {
 
 :is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body table code {
   font-size: 0.867em;
+}
+
+/* 官网代码块的语言栏在滚动时吸顶 */
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-code-header {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  border-radius: var(--code-block-radius) var(--code-block-radius) 0 0;
 }
