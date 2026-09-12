@@ -47,13 +47,13 @@ test("preserves status line breaks while normalizing horizontal whitespace", () 
   );
 });
 
-test("preserves explicit status lines without wrapping and scrolls long or tall output", async () => {
+test("keeps status items on one row and lets long output scroll", async () => {
   const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   const statusLineRule = css.match(/\.extension-status-line\s*\{([^}]*)\}/)?.[1] ?? "";
   const statusTextRule = css.match(/\.extension-status-text\s*\{([^}]*)\}/)?.[1] ?? "";
 
   assert.match(statusLineRule, /max-height:/);
-  assert.match(statusLineRule, /align-items:\s*flex-start/);
+  assert.match(statusLineRule, /align-items:\s*center/);
   assert.match(statusLineRule, /overflow:\s*auto/);
   assert.match(statusTextRule, /white-space:\s*pre\s*;/);
   assert.doesNotMatch(statusTextRule, /overflow[^:]*:\s*hidden/);
@@ -61,7 +61,7 @@ test("preserves explicit status lines without wrapping and scrolls long or tall 
   assert.doesNotMatch(statusTextRule, /text-overflow:\s*ellipsis/);
 });
 
-test("renders a single status line without identifier keys", () => {
+test("renders one pill per status without leaking identifier keys", () => {
   const html = renderStatusBar({
     statuses: [
       { key: "20-memory", text: "\x1b[32mmemory\x1b[0m" },
@@ -73,9 +73,32 @@ test("renders a single status line without identifier keys", () => {
   assert.match(html, /extension-status-shelf/);
   assert.match(html, /extension-status-line/);
   assert.match(html, /extension-status-text/);
-  assert.match(html, />ponytail <span style=/);
-  assert.match(html, />memory</);
+  assert.equal(html.split("extension-status-pill").length - 1, 2);
+  assert.match(html, /title="ponytail"/);
+  assert.match(html, /title="memory"/);
   assert.doesNotMatch(html, /05-ponytail|20-memory/);
+});
+
+test("hides widgets that have nothing to show", () => {
+  const empty = renderStatusBar({
+    statuses: [],
+    widgets: [{ key: "pi-x-ide", lines: [], placement: "aboveEditor" }],
+  });
+  assert.equal(empty, "");
+
+  const blank = renderStatusBar({
+    statuses: [],
+    widgets: [{ key: "pi-x-ide", lines: ["", "   "], placement: "aboveEditor" }],
+  });
+  assert.equal(blank, "");
+
+  const filled = renderStatusBar({
+    statuses: [],
+    widgets: [{ key: "Process", lines: ["2 running"], placement: "aboveEditor" }],
+  });
+  assert.match(filled, /Process/);
+  assert.match(filled, /has-widgets/);
+  assert.doesNotMatch(filled, /has-status/);
 });
 
 test("renders widgets and status text in one footer", () => {

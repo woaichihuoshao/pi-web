@@ -448,7 +448,7 @@ html.dark .web-login-error {
   display: flex;
   flex-shrink: 0;
   flex-wrap: wrap;
-  align-items: stretch;
+  align-items: center;
   min-width: 0;
   border-top: 1px solid var(--border);
   background: transparent;
@@ -488,10 +488,12 @@ html.dark .web-login-error {
 
 .extension-widget-triggers {
   display: flex;
-  flex: 1 1 100%;
-  align-items: stretch;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 6px;
   min-width: 0;
-  height: 35px;
+  height: 30px;
+  padding: 0 10px;
   overflow-x: auto;
   overflow-y: hidden;
   overscroll-behavior-x: contain;
@@ -505,22 +507,21 @@ html.dark .web-login-error {
 .extension-status-shelf.has-widgets.has-status .extension-widget-triggers {
   flex: 0 0 auto;
   max-width: 70%;
-  border-right: 1px solid var(--border);
 }
 
 .extension-widget-trigger {
   position: relative;
   display: flex;
-  flex: 0 0 108px;
+  flex: 0 0 auto;
   align-items: center;
-  width: 108px;
-  height: 35px;
+  width: auto;
+  height: 26px;
   gap: 5px;
-  padding: 0 7px;
+  padding: 0 10px;
   overflow: hidden;
-  border: 0;
-  border-right: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
-  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  border-radius: 999px;
+  background: var(--bg-panel);
   color: var(--text-muted);
   font-family: var(--font-mono);
   font-size: 11px;
@@ -629,11 +630,11 @@ button.extension-widget-trigger:focus-visible {
 .extension-status-line {
   display: flex;
   flex: 1 1 0;
-  align-items: flex-start;
+  align-items: center;
   min-width: 0;
-  min-height: 35px;
+  min-height: 30px;
   max-height: min(144px, 18dvh);
-  padding: 8px 12px;
+  padding: 3px 10px;
   overflow: auto;
   overscroll-behavior: contain;
   scrollbar-gutter: stable;
@@ -641,12 +642,30 @@ button.extension-widget-trigger:focus-visible {
 }
 
 .extension-status-text {
+  display: flex;
   flex: 1;
+  align-items: center;
+  gap: 6px;
   min-width: 0;
   color: var(--text-muted);
   font-family: var(--font-mono);
   font-size: 11px;
   line-height: 1.45;
+  white-space: pre;
+}
+
+/* One status per pill: extensions color their own text, so pills keep the
+   colors from bleeding into each other. */
+.extension-status-pill {
+  display: inline-flex;
+  max-width: 60ch;
+  align-items: center;
+  padding: 2px 8px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  border-radius: 999px;
+  background: var(--bg-panel);
+  text-overflow: ellipsis;
   white-space: pre;
 }
 ::-webkit-scrollbar-thumb:hover {

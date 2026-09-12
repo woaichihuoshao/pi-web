@@ -21,6 +21,15 @@ export function formatExtensionStatusLine(statuses: ExtensionStatusItem[]): stri
     .join(" ");
 }
 
+/**
+ * A widget that has no lines has nothing to show. Extensions commonly keep one
+ * registered for a whole session (pi-x-ide, for example), which would otherwise
+ * leave an empty trigger sitting in the footer.
+ */
+export function widgetsWithContent(widgets: ExtensionWidgetItem[]): ExtensionWidgetItem[] {
+  return widgets.filter((widget) => widget.lines.some((line) => line.trim().length > 0));
+}
+
 export function ExtensionStatusBar({
   statuses,
   widgets = [],
@@ -28,17 +37,20 @@ export function ExtensionStatusBar({
   statuses: ExtensionStatusItem[];
   widgets?: ExtensionWidgetItem[];
 }) {
-  if (statuses.length === 0 && widgets.length === 0) return null;
+  const visibleWidgets = widgetsWithContent(widgets);
+  const orderedStatuses = [...statuses].sort((a, b) => a.key.localeCompare(b.key));
+
+  if (orderedStatuses.length === 0 && visibleWidgets.length === 0) return null;
 
   const statusLine = formatExtensionStatusLine(statuses);
   const plainStatusLine = stripAnsi(statusLine);
 
   return (
     <div
-      className={`extension-status-shelf${widgets.length > 0 ? " has-widgets" : ""}${statuses.length > 0 ? " has-status" : ""}`}
+      className={`extension-status-shelf${visibleWidgets.length > 0 ? " has-widgets" : ""}${orderedStatuses.length > 0 ? " has-status" : ""}`}
     >
-      {widgets.length > 0 && <ExtensionWidgets widgets={widgets} />}
-      {statuses.length > 0 && (
+      {visibleWidgets.length > 0 && <ExtensionWidgets widgets={visibleWidgets} />}
+      {orderedStatuses.length > 0 && (
         <div
           role="status"
           className="extension-status-line"
@@ -46,7 +58,14 @@ export function ExtensionStatusBar({
           title={plainStatusLine}
         >
           <span className="extension-status-text">
-            <AnsiText text={statusLine} />
+            {orderedStatuses.map(({ key, text }) => {
+              const label = stripAnsi(sanitizeExtensionStatusText(text));
+              return (
+                <span key={key} className="extension-status-pill" title={label}>
+                  <AnsiText text={sanitizeExtensionStatusText(text)} />
+                </span>
+              );
+            })}
           </span>
         </div>
       )}
