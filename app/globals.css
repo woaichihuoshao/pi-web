@@ -2110,11 +2110,3 @@ span.token.table {
 :is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body table code {
   font-size: 0.867em;
 }
-
-/* 官网代码块的语言栏在滚动时吸顶 */
-:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-code-header {
-  position: sticky;
-  top: 0;
-  z-index: 6;
-  border-radius: var(--code-block-radius) var(--code-block-radius) 0 0;
-}
