@@ -119,47 +119,59 @@ html[data-theme="pine"],
   --bg-subtle: rgba(210,236,219,0.04);
 }
 
-/* DeepSeek 深蓝：对齐官方设计文档的暗色值（画布 #0E0E10，用户气泡 #1E2240，
-   唯一饱和色是品牌蓝 #4D6BFE，其余为克制的中性灰阶）*/
+/* DeepSeek 深蓝：数值直接取自 chat.deepseek.com 的 CSS token
+   （--dsw-static-neutral-bluish-* / --dsw-static-deepseek-* / --dsw-alias-*）
+   暗色：bg-base #151517、layer-1 #232324、layer-2 #2C2C2E、overlay #43454A、
+   label #F9FAFB / #CFD3D6 / #ADB2B8、border rgba(255,255,255,.12)、品牌 #5686FE */
 html[data-theme="deepseek"],
 [data-theme="deepseek"] {
   color-scheme: dark;
-  --bg: #0e0e10;
-  --bg-panel: #16171a;
-  --bg-hover: #232428;
-  --bg-selected: #2e2f33;
-  --border: #2e2f33;
-  --text: #ececec;
-  --text-muted: #9a9ba0;
-  --text-dim: #8a8b90;
-  --accent: #4d6bfe;
-  --accent-hover: #6b85ff;
+  --bg: #151517;
+  --bg-panel: #232324;
+  --bg-hover: #353638;
+  --bg-selected: #43454a;
+  --border: rgba(255,255,255,0.12);
+  --text: #f9fafb;
+  --text-muted: #cfd3d6;
+  --text-dim: #adb2b8;
+  --accent: #5686fe;
+  --accent-hover: #3964fe;
   --accent-contrast: #ffffff;
-  --user-bg: #1e2240;
-  --assistant-bg: #0e0e10;
-  --tool-bg: #16171a;
-  --bg-subtle: rgba(255,255,255,0.04);
+  --user-bg: #2c2c2e;
+  --assistant-bg: #151517;
+  --tool-bg: #1b1b1c;
+  --bg-subtle: rgba(255,255,255,0.08);
 }
 
-/* DeepSeek 晴蓝：官方浅色画布为纯白，选区用品牌浅蓝 #EAEEFE，文字走中性灰阶 */
+/* DeepSeek 晴蓝：亮色 token
+   bg-base #FFF、module-platform #F5F6F7、hover #F1F3F5、overlay #E9ECF2、
+   label #0F1115 / #61666B / #81858C、border rgba(0,0,0,.1)、品牌 #3964FE、
+   代码/工具面 markdown-code-block #F9FAFB */
 html[data-theme="deepseek-light"],
 [data-theme="deepseek-light"] {
   color-scheme: light;
   --bg: #ffffff;
-  --bg-panel: #f7f8fa;
-  --bg-hover: #eef0f4;
-  --bg-selected: #eaeefe;
-  --border: #ececec;
-  --text: #1a1b1e;
-  --text-muted: #6a6b70;
-  --text-dim: #8a8b90;
-  --accent: #4d6bfe;
-  --accent-hover: #3b57e0;
+  --bg-panel: #f5f6f7;
+  --bg-hover: #f1f3f5;
+  --bg-selected: #e9ecf2;
+  --border: rgba(0,0,0,0.1);
+  --text: #0f1115;
+  --text-muted: #61666b;
+  --text-dim: #81858c;
+  --accent: #3964fe;
+  --accent-hover: #5686fe;
   --accent-contrast: #ffffff;
-  --user-bg: #eaeefe;
+  --user-bg: #f1f3f5;
   --assistant-bg: #ffffff;
-  --tool-bg: #f5f7fb;
-  --bg-subtle: rgba(77,107,254,0.05);
+  --tool-bg: #f9fafb;
+  --bg-subtle: rgba(0,0,0,0.04);
+}
+
+/* 官网字体栈以 Inter 开头（chat.deepseek.com: "Inter", system-ui, -apple-system,
+   BlinkMacSystemFont, "Segoe UI", Roboto…）；仅在 DeepSeek 主题下生效。 */
+[data-theme="deepseek"] body,
+[data-theme="deepseek-light"] body {
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 
 /* WebKit reports dvh/innerHeight without the status-bar strip for installed

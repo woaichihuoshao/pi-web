@@ -18,6 +18,8 @@ Lint: `npm run lint`
 - Do not use `next dev --webpack` as a fallback. This repository's development graph can fail on `undici` imports such as `node:console`; development is expected to use Turbopack.
 - Next.js may append a generated `BEGIN:nextjs-agent-rules` block to `AGENTS.md` when `next dev` starts. Treat that as generated tooling output, verify it with `git status`, and do not include it in an unrelated feature commit.
 - Edits to `app/globals.css` sometimes never reach the running dev server: the served CSS chunk keeps the old mtime while the DOM already shows the new JSX. Restart `npm run dev` before concluding that a style change did not apply — querying `getComputedStyle` in a browser session is the quickest way to tell.
+- A locally started `npm run dev` is a child of the agent process, so restarting the production service (`piweb-switch`, `piweb-deploy --restart`, or the delayed `systemd-run` restart) kills it too. Start it again after any production restart.
+- Turbopack needs a lot of inotify watchers on this machine (VS Code, other agents, and trackers share the same budget). `fs.inotify.max_user_watches` is raised in `/etc/sysctl.d/60-inotify-limits.conf`; if `next dev` dies with `OS file watch limit reached`, raise that value instead of suspecting the code.
 
 ---
 
