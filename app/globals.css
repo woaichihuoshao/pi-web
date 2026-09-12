@@ -47,6 +47,11 @@
   --font-ui: 13px;
   --font-body: 14px;
   --font-read: 15px;
+  /* 线条只保留三级；行/分隔线默认沿用原观感，DeepSeek 主题下按层级细分 */
+  --border-subtle: var(--border);
+  --border-strong: var(--border);
+  --divider: 1px solid var(--border);
+  --row-border: 1px solid var(--border);
   --shadow-popover: 0 4px 16px rgba(0,0,0,0.10);
   --shadow-dialog: 0 12px 32px rgba(0,0,0,0.18);
   --shadow-composer: 0 1px 2px rgba(15,23,42,0.04), 0 8px 24px -12px rgba(15,23,42,0.10);
@@ -189,9 +194,16 @@ html[data-theme="deepseek"],
   color-scheme: dark;
   --bg: #151517;
   --bg-panel: #232324;
-  --bg-hover: #353638;
-  --bg-selected: #43454a;
+  /* 背景层之间只差一点点（hover 6% / active 9% 白，而不是跳到 #353638） */
+  --bg-hover: rgba(255,255,255,0.06);
+  --bg-selected: rgba(255,255,255,0.09);
   --border: rgba(255,255,255,0.12);
+  /* 线条三级：subtle 8% / default 12% / strong 20% */
+  --border-subtle: rgba(255,255,255,0.08);
+  --border-strong: rgba(255,255,255,0.20);
+  /* 分隔线几乎不可见；列表项不画边框（靠底色差区分） */
+  --divider: 1px solid rgba(255,255,255,0.04);
+  --row-border: none;
   --text: #f9fafb;
   --text-muted: #cfd3d6;
   --text-dim: #adb2b8;
@@ -246,8 +258,8 @@ html[data-theme="deepseek"],
   --code-block-pre-padding: 16px;
   --table-wrap-border: none;
   --table-wrap-radius: 0;
-  --table-row-border: rgba(255,255,255,0.12);
-  --table-head-border: rgba(255,255,255,0.16);
+  --table-row-border: var(--border-subtle);
+  --table-head-border: var(--border-strong);
   --table-head-bg: transparent;
   --table-head-weight: 600;
   --table-cell-padding: 10px 12px;
@@ -279,6 +291,12 @@ html[data-theme="deepseek-light"],
   color-scheme: light;
   --bg: #ffffff;
   --bg-panel: #f5f6f7;
+  --bg-hover: rgba(0,0,0,0.05);
+  --bg-selected: rgba(0,0,0,0.07);
+  --border-subtle: rgba(0,0,0,0.06);
+  --border-strong: rgba(0,0,0,0.16);
+  --divider: 1px solid rgba(0,0,0,0.04);
+  --row-border: none;
   --bg-hover: #f1f3f5;
   --bg-selected: #e9ecf2;
   --border: rgba(0,0,0,0.1);
@@ -329,8 +347,8 @@ html[data-theme="deepseek-light"],
   --code-block-pre-padding: 16px;
   --table-wrap-border: none;
   --table-wrap-radius: 0;
-  --table-row-border: rgba(0,0,0,0.10);
-  --table-head-border: rgba(0,0,0,0.12);
+  --table-row-border: var(--border-subtle);
+  --table-head-border: var(--border-strong);
   --table-head-bg: transparent;
   --table-head-weight: 600;
   --table-cell-padding: 10px 12px;
@@ -2288,4 +2306,13 @@ span.token.table {
 
 :is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-code-block:has(.markdown-code-header--lite) pre {
   padding: 2px 0 2px 14px !important;
+}
+
+/* 引用左线用 strong（语义符号，可以稍明显），分割线用 subtle */
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body blockquote {
+  border-left-color: var(--border-strong);
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body hr {
+  background: var(--border-subtle);
 }
