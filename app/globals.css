@@ -364,14 +364,14 @@ html[data-theme="deepseek-light"],
 }
 
 /* 流式生成时的插入符：官网的 caret 用品牌色（--dsl-input-caret-color = brand-primary），
-   细条 + 圆角 + 柔和呼吸，画在最后一行文字的末尾。*/
+   细条 + 圆角 + 柔和呼吸。只在"正文类元素"（段落/列表/标题/引用）末尾出现 ——
+   若最后一块是代码块、表格这类块级元素，光标会飘在整块后面像残影，故排除。 */
 @keyframes deepseek-caret-blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.12; }
 }
 
-:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body[data-streaming-caret] > *:last-child::after,
-:is([data-theme="deepseek"], [data-theme="deepseek-light"]) [data-streaming="true"] .markdown-body > *:last-child::after {
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) [data-streaming="true"] .markdown-body > :is(p, li, h1, h2, h3, h4, h5, h6, blockquote):last-child::after {
   content: "";
   display: inline-block;
   width: 2px;
@@ -382,6 +382,7 @@ html[data-theme="deepseek-light"],
   vertical-align: text-bottom;
   animation: deepseek-caret-blink 1.15s ease-in-out infinite;
 }
+
 
 /* 官网“已深度思考”那行灰底流光（shimmer）*/
 @keyframes deepseek-thinking-shimmer {
