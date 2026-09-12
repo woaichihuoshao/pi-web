@@ -2316,3 +2316,9 @@ span.token.table {
 :is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body hr {
   background: var(--border-subtle);
 }
+
+/* 输入框插入符用品牌色（官网 --dsl-input-caret-color = brand-primary），
+   与官网一致：光标是蓝的，文字仍是主文字色 */
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .chat-input-textarea {
+  caret-color: var(--accent);
+}
