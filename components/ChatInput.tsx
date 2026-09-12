@@ -1612,7 +1612,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
           <div style={{
             marginBottom: 8,
             border: "1px solid var(--border)",
-            borderRadius: 6,
+            borderRadius: "var(--ui-radius-menu)",
             background: "var(--bg-panel)",
             padding: "5px 0",
           }}>
@@ -2108,7 +2108,7 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
               border: compact ? "none" : `1px solid ${bashMode ? "var(--tool-bg)" : isStreaming && (onSteer || onFollowUp)
                 ? "var(--state-warn-border)"
                 : "color-mix(in srgb, var(--border) 70%, transparent)"}`,
-              borderRadius: compact ? 0 : 14,
+              borderRadius: compact ? 0 : "var(--ui-radius-composer)",
               padding: compact ? 0 : "10px 10px 10px 14px",
               boxShadow: compact ? "none" : "0 1px 2px rgba(15,23,42,0.04), 0 8px 24px -12px rgba(15,23,42,0.10)",
               transition: "border-color 0.15s, background 0.15s, box-shadow 0.15s",

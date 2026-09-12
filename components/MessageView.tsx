@@ -406,8 +406,8 @@ function UserMessageView({ message, cwd, onOpenFile, entryId, onFork, forking, o
             minWidth: 0,
             background: "var(--user-bg)",
             border: usesDeepSeekBrand(theme) ? "none" : "1px solid rgba(59,130,246,0.2)",
-            borderRadius: usesDeepSeekBrand(theme) ? 16 : 12,
-            padding: "8px 12px",
+            borderRadius: "var(--ui-radius-bubble)",
+            padding: "var(--ui-bubble-padding)",
             fontSize: "calc(14px + var(--chat-font-size-offset, 0px))",
             lineHeight: 1.6,
             color: "var(--text)",
@@ -1052,7 +1052,7 @@ function ToolCallBlock({ block, result, duration, onOpenSession }: { block: Tool
   return (
     <div
       style={{
-        borderRadius: 7,
+        borderRadius: "var(--ui-radius-card)",
         overflow: "hidden",
         fontSize: 12,
         border: isError ? "1px solid var(--state-danger-border)" : "1px solid var(--state-success-border)",

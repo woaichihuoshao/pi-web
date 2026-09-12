@@ -37,6 +37,19 @@
   --assistant-bg: #ffffff;
   --tool-bg: #f9fafb;
   --bg-subtle: rgba(0,0,0,0.03);
+  /* 组件结构 token：默认 = pi-web 现有观感，DeepSeek 主题按官网真值覆盖 */
+  --ui-radius-btn: 5px;
+  --ui-radius-input: 8px;
+  --ui-radius-menu: 8px;
+  --ui-radius-menu-item: 5px;
+  --ui-radius-row: 5px;
+  --ui-radius-card: 7px;
+  --ui-radius-toggle: 999px;
+  --ui-radius-composer: 6px;
+  --ui-radius-bubble: 12px;
+  --ui-bubble-padding: 8px 12px;
+  --ui-menu-padding: 6px;
+  --ui-menu-item-height: 28px;
   /* 语义状态色：默认沿用 pi-web 原有观感，主题可按官方 token 覆盖 */
   --state-success: #16a34a;
   --state-success-soft: rgba(34,197,94,0.04);
@@ -154,6 +167,21 @@ html[data-theme="deepseek"],
   --assistant-bg: #151517;
   --tool-bg: #1b1b1c;
   --bg-subtle: rgba(255,255,255,0.08);
+  /* 官网结构真值：输入框 ._77cefa5 24px、用户气泡 .fbb737a4 22px/10-16、
+     开关 .ds-toggle-button 18px、按钮 --dsl-button-border-radius 4096px、
+     表单输入 --dsl-input-border-radius 10px、下拉 --dsl-dropdown-menu-* */
+  --ui-radius-btn: 4096px;
+  --ui-radius-input: 10px;
+  --ui-radius-menu: 12px;
+  --ui-radius-menu-item: 8px;
+  --ui-radius-row: 8px;
+  --ui-radius-card: 16px;
+  --ui-radius-toggle: 18px;
+  --ui-radius-composer: 24px;
+  --ui-radius-bubble: 22px;
+  --ui-bubble-padding: 10px 16px;
+  --ui-menu-padding: 4px;
+  --ui-menu-item-height: 24px;
   /* 官网 state token：success green-500、error red-400、warn amber-500/600 */
   --state-success: #22c55e;
   --state-success-soft: rgba(34,197,94,0.10);
@@ -191,6 +219,18 @@ html[data-theme="deepseek-light"],
   --assistant-bg: #ffffff;
   --tool-bg: #f9fafb;
   --bg-subtle: rgba(0,0,0,0.04);
+  --ui-radius-btn: 4096px;
+  --ui-radius-input: 10px;
+  --ui-radius-menu: 12px;
+  --ui-radius-menu-item: 8px;
+  --ui-radius-row: 8px;
+  --ui-radius-card: 16px;
+  --ui-radius-toggle: 18px;
+  --ui-radius-composer: 24px;
+  --ui-radius-bubble: 22px;
+  --ui-bubble-padding: 10px 16px;
+  --ui-menu-padding: 4px;
+  --ui-menu-item-height: 24px;
   --state-success: #22c55e;
   --state-success-soft: rgba(34,197,94,0.08);
   --state-success-border: rgba(34,197,94,0.30);
@@ -1958,4 +1998,23 @@ span.token.table {
   .chat-input-textarea {
     font-size: max(16px, var(--chat-content-font-size, 14px)) !important;
   }
+}
+
+/* 官网形状：设置面板与表单控件（不改动原规则，仅在 DeepSeek 主题下覆盖） */
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) :is(.config-button, .config-sidebar-item, .config-list-action-button, .config-close-button, .settings-chat-switch-option) {
+  border-radius: var(--ui-radius-btn);
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .config-switch {
+  border-radius: var(--ui-radius-toggle);
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) :is(input[type="text"], input[type="password"], input[type="search"], input:not([type]), textarea, select) {
+  border-radius: var(--ui-radius-input);
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  border-radius: 6px;
 }
