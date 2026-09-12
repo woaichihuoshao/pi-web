@@ -13,6 +13,8 @@ import { parseUnifiedPatch, type SplitDiffCell } from "@/lib/patch";
 import { isEditToolName } from "@/lib/tool-names";
 import { isThinkingExpandedByDefault, THINKING_EXPANDED_EVENT } from "@/lib/thinking-expansion-preference";
 import { TurnWrittenFiles } from "./TurnWrittenFiles";
+import { ProcessNotificationMessage } from "./ProcessNotificationMessage";
+import { PROCESS_NOTIFICATION_TYPE, parseProcessNotification } from "@/lib/process-notification";
 import type { WrittenFile } from "@/lib/turn-written-files";
 import { skillExpansionToCommand } from "@/lib/slash-display";
 import type { SubagentToolDetails } from "@/lib/subagent-extension";
@@ -1530,6 +1532,13 @@ function CustomMessageView({ message, cwd, onOpenFile }: { message: CustomMessag
   const detailsText = hasDetails ? safeJson(message.details) : "";
   const title = formatCustomType(message.customType);
   const time = formatTime(message.timestamp);
+
+  // pi-processes writes English XML bodies plus a structured payload; render our
+  // own localized card from the payload instead of the generic custom card.
+  if (message.customType === PROCESS_NOTIFICATION_TYPE) {
+    const notification = parseProcessNotification(message.details);
+    if (notification) return <ProcessNotificationMessage view={notification} />;
+  }
 
   const copyContent = () => {
     copyText(text || detailsText).then(() => {

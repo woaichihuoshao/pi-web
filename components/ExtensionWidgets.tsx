@@ -3,13 +3,32 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { useI18n } from "@/hooks/useI18n";
 import { AnsiText } from "@/components/AnsiText";
+import { ProcessWidgetContent } from "./ProcessWidgetContent";
+import { isProcessWidgetKey, parseProcessStatusWidget } from "@/lib/process-notification";
 import type { ExtensionWidgetItem } from "@/lib/types";
+import type { TranslationParams } from "@/lib/i18n/types";
 
 export const DEFAULT_EXPANDED_WIDGET_LINES = 3;
 export const WIDGET_UPDATE_IDLE_MS = 1100;
 
 export function formatExtensionWidgetContent(lines: string[]): string {
   return lines.join("\n");
+}
+
+type Translate = (key: string, params?: TranslationParams) => string;
+
+/** Header for a widget panel; the process widget gets a translated title. */
+export function widgetTitle(key: string, t: Translate): string {
+  return isProcessWidgetKey(key) ? t("process.widgetTitle") : key;
+}
+
+/** Trigger label, with a running count while something is still going. */
+export function widgetTriggerLabel(key: string, lines: string[], t: Translate): string {
+  if (!isProcessWidgetKey(key)) return key;
+  const summary = parseProcessStatusWidget(lines);
+  return summary && summary.runningCount > 0
+    ? t("process.widgetRunning", { count: summary.runningCount })
+    : t("process.widgetTitle");
 }
 
 export function snapshotExtensionWidgetContents(
@@ -129,10 +148,14 @@ export function ExtensionWidgets({ widgets }: { widgets: ExtensionWidgetItem[] }
                 className="extension-widget-panel"
                 aria-labelledby={triggerId}
               >
-                <div className="extension-widget-panel-heading">{widget.key}</div>
-                <pre className="extension-widget-content">
-                  <AnsiText text={formatExtensionWidgetContent(widget.lines)} />
-                </pre>
+                <div className="extension-widget-panel-heading">{widgetTitle(widget.key, t)}</div>
+                {isProcessWidgetKey(widget.key) && parseProcessStatusWidget(widget.lines)
+                  ? <div className="extension-widget-content"><ProcessWidgetContent summary={parseProcessStatusWidget(widget.lines)!} /></div>
+                  : (
+                    <pre className="extension-widget-content">
+                      <AnsiText text={formatExtensionWidgetContent(widget.lines)} />
+                    </pre>
+                  )}
               </section>
             );
           })()}
@@ -173,7 +196,7 @@ export function ExtensionWidgets({ widgets }: { widgets: ExtensionWidgetItem[] }
                   />
                 </svg>
               </span>
-              <span className="extension-widget-key">{widget.key}</span>
+              <span className="extension-widget-key">{widgetTriggerLabel(widget.key, widget.lines, t)}</span>
             </>
           );
 
