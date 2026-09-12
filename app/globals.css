@@ -174,6 +174,33 @@ html[data-theme="deepseek-light"],
   font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
 }
 
+/* DeepSeek 主题：圆角按官网 token（代码块 12px、内联代码 6px） */
+[data-theme="deepseek"] .markdown-code-block,
+[data-theme="deepseek-light"] .markdown-code-block {
+  border-radius: 12px;
+}
+
+[data-theme="deepseek"] .markdown-inline-code,
+[data-theme="deepseek-light"] .markdown-inline-code {
+  border-radius: 6px;
+}
+
+/* 官网“已深度思考”那行灰底流光（shimmer）*/
+@keyframes deepseek-thinking-shimmer {
+  from { background-position: 200% center; }
+  to { background-position: -200% center; }
+}
+
+[data-theme="deepseek"] .deepseek-thinking-shimmer,
+[data-theme="deepseek-light"] .deepseek-thinking-shimmer {
+  background: linear-gradient(90deg, var(--text-dim) 30%, var(--text) 50%, var(--text-dim) 70%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: deepseek-thinking-shimmer 2.4s linear infinite;
+}
+
 /* WebKit reports dvh/innerHeight without the status-bar strip for installed
    home-screen apps even though the layout still starts at the screen's top.
    In standalone mode there is no browser toolbar to make vh unstable, and vh
