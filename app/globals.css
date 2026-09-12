@@ -2276,3 +2276,16 @@ span.token.table {
   font-size: calc(16px + var(--chat-font-size-offset, 0px)) !important;
   line-height: 1.5;
 }
+
+/* 没有语言名的代码块（多为纯文本/对照列表，不是真代码）：不再套灰底方框，
+   改成等宽字体 + 左侧细线 —— 避免出现"空头的灰框"（低装饰原则） */
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-code-block:has(.markdown-code-header--lite) {
+  background: none;
+  border-radius: 0;
+  border-left: 2px solid var(--border);
+  margin: 1em 0;
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-code-block:has(.markdown-code-header--lite) pre {
+  padding: 2px 0 2px 14px !important;
+}
