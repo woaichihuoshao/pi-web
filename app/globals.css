@@ -185,6 +185,22 @@ html[data-theme="deepseek-light"],
   border-radius: 6px;
 }
 
+/* 流式生成时的闪烁光标（官网那种方块光标）*/
+@keyframes deepseek-caret-blink {
+  0%, 45% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.deepseek-caret {
+  display: inline-block;
+  width: 7px;
+  height: 1.05em;
+  background: currentColor;
+  border-radius: 1px;
+  vertical-align: text-bottom;
+  animation: deepseek-caret-blink 1s step-end infinite;
+}
+
 /* 官网“已深度思考”那行灰底流光（shimmer）*/
 @keyframes deepseek-thinking-shimmer {
   from { background-position: 200% center; }

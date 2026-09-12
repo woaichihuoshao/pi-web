@@ -404,6 +404,7 @@ export const zhCNLocale: LocalePlugin = {
     "chat.stop": "停止",
     "chat.disableSound": "关闭完成提示音",
     "chat.enableSound": "开启完成提示音",
+    "chat.thoughtFor": "已深度思考（用时 {seconds} 秒）",
     "chat.voiceStart": "开始语音输入",
     "chat.voiceStop": "停止录音并转写",
     "chat.voiceRecording": "录音中",

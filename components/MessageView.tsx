@@ -325,6 +325,7 @@ function UserMessageView({ message, cwd, onOpenFile, entryId, onFork, forking, o
   onNavigate?: (entryId: string) => Promise<boolean>;
   onEditContent?: (message: UserMessage) => void;
 }) {
+  const { theme } = useTheme();
   const { t } = useI18n();
   const [hovered, setHovered] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -404,8 +405,8 @@ function UserMessageView({ message, cwd, onOpenFile, entryId, onFork, forking, o
             flex: 1,
             minWidth: 0,
             background: "var(--user-bg)",
-            border: "1px solid rgba(59,130,246,0.2)",
-            borderRadius: 12,
+            border: usesDeepSeekBrand(theme) ? "none" : "1px solid rgba(59,130,246,0.2)",
+            borderRadius: usesDeepSeekBrand(theme) ? 16 : 12,
             padding: "8px 12px",
             fontSize: "calc(14px + var(--chat-font-size-offset, 0px))",
             lineHeight: 1.6,
@@ -627,6 +628,8 @@ function AssistantMessageView({
   writtenFiles?: WrittenFile[];
 }) {
   const { t } = useI18n();
+  const { theme } = useTheme();
+  const deepseekStyle = usesDeepSeekBrand(theme);
   const time = showTimestamp ? formatTime(message.timestamp) : null;
   const blockItems = useMemo(() => (message.content ?? [])
     .map((block, originalIndex) => ({ block, originalIndex }))
@@ -836,6 +839,8 @@ function AssistantMessageView({
       <div style={{
         display: "flex", alignItems: "center", gap: 8, marginTop: 4,
       }}>
+        {/* 流式中：官网那种闪烁光标 */}
+        {isStreaming && deepseekStyle && <span className="deepseek-caret" aria-hidden="true" />}
         {message.usage && !isStreaming && (
           <div style={{ fontSize: 11, color: "var(--text-dim)" }}>
             {formatUsage(message.usage)}
@@ -995,7 +1000,9 @@ export function ThinkingBlock({ block, duration, sessionId, entryId, blockIndex 
         <ThinkingIcon active={expanded} />
         {!expanded && (
           <span className={shimmer ? "deepseek-thinking-shimmer" : undefined} style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {preview ? <ReactMarkdown allowedElements={[]} unwrapDisallowed skipHtml>{preview}</ReactMarkdown> : "..."}
+            {shimmer && duration
+              ? t("chat.thoughtFor", { seconds: duration })
+              : preview ? <ReactMarkdown allowedElements={[]} unwrapDisallowed skipHtml>{preview}</ReactMarkdown> : "..."}
           </span>
         )}
       </button>
