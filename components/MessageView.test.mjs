@@ -163,7 +163,9 @@ test("renders subagents as standard tool calls with only an extra session button
     onOpenSession() {},
   });
 
-  assert.match(html, /border:1px solid var\(--state-success-border\)/);
+  assert.match(html, /border:1px solid var\(--tool-row-border\)/);
+  assert.match(html, /class="agent-action-row"/);
+  assert.match(html, /stroke="var\(--state-success\)"/);
   assert.match(html, />Agent</);
   assert.match(html, />Explore</);
   assert.match(html, /aria-label="Open sub-agent session"/);

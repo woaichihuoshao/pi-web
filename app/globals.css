@@ -48,6 +48,9 @@
   --font-body: 14px;
   --font-read: 15px;
   /* 线条只保留三级；行/分隔线默认沿用原观感，DeepSeek 主题下按层级细分 */
+  /* Agent Action Row（工具调用行）：默认沿用卡片观感，DeepSeek 下按 Agent Trace 规格 */
+  --ui-radius-action: var(--ui-radius-card);
+  --tool-row-border: var(--border);
   --border-subtle: var(--border);
   --border-strong: var(--border);
   --divider: 1px solid var(--border);
@@ -200,6 +203,8 @@ html[data-theme="deepseek"],
   --border: rgba(255,255,255,0.12);
   /* 线条三级：subtle 8% / default 12% / strong 20% */
   --border-subtle: rgba(255,255,255,0.08);
+  --ui-radius-action: 10px;
+  --tool-row-border: rgba(255,255,255,0.08);
   --border-strong: rgba(255,255,255,0.20);
   /* 分隔线几乎不可见；列表项不画边框（靠底色差区分） */
   --divider: 1px solid rgba(255,255,255,0.04);
@@ -294,6 +299,8 @@ html[data-theme="deepseek-light"],
   --bg-hover: rgba(0,0,0,0.05);
   --bg-selected: rgba(0,0,0,0.07);
   --border-subtle: rgba(0,0,0,0.06);
+  --ui-radius-action: 10px;
+  --tool-row-border: rgba(0,0,0,0.07);
   --border-strong: rgba(0,0,0,0.16);
   --divider: 1px solid rgba(0,0,0,0.04);
   --row-border: none;
@@ -2361,4 +2368,59 @@ span.token.table {
 :is([data-theme="deepseek"], [data-theme="deepseek-light"]) .chat-input-fake-caret {
   height: 1.4em;
   font-size: calc(16px + var(--chat-font-size-offset, 0px));
+}
+
+/* Agent Action Row：运行中的状态点做呼吸（状态色只占小面积） */
+@keyframes agent-status-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.82); }
+}
+
+.agent-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: agent-status-pulse 1.4s ease-in-out infinite;
+}
+
+/* 动作行：第一行是"在干什么"（无衬线），机器细节（命令/输出）在展开区 */
+.agent-action-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  min-height: 40px;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.agent-action-name {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: var(--font-xs);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.agent-action-desc {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--font-ui);
+  color: var(--text-muted);
+}
+
+.agent-action-meta {
+  flex-shrink: 0;
+  font-size: var(--font-xs);
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
 }

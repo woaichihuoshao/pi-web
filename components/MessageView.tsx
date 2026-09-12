@@ -1028,6 +1028,19 @@ function isSubagentToolDetails(value: unknown): value is SubagentToolDetails {
   return details.kind === "pi-web-subagent" && typeof details.sessionId === "string";
 }
 
+function ActionStatusIcon({ status }: { status: "running" | "success" | "error" | "waiting" }) {
+  if (status === "running") return <span className="agent-status-dot" style={{ background: "var(--state-info)" }} aria-hidden="true" />;
+  const color = status === "error" ? "var(--state-danger)" : status === "success" ? "var(--state-success)" : "var(--text-dim)";
+  const label = status === "error" ? "×" : status === "success" ? "✓" : "○";
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }} role="img" aria-label={label}>
+      {status === "success" && <polyline points="2 6.5 4.8 9.3 10 3.2" />}
+      {status === "error" && (<><line x1="3" y1="3" x2="9" y2="9" /><line x1="9" y1="3" x2="3" y2="9" /></>)}
+      {status === "waiting" && <circle cx="6" cy="6" r="3.6" />}
+    </svg>
+  );
+}
+
 function ToolCallBlock({ block, result, duration, onOpenSession }: { block: ToolCallContent; result?: ToolResultMessage; duration?: number; onOpenSession?: (sessionId: string) => void }) {
   const { t } = useI18n();
   const [expanded, setExpanded] = useState(false);
@@ -1048,40 +1061,37 @@ function ToolCallBlock({ block, result, duration, onOpenSession }: { block: Tool
   return (
     <div
       style={{
-        borderRadius: "var(--ui-radius-card)",
+        borderRadius: "var(--ui-radius-action)",
         overflow: "hidden",
         fontSize: "var(--font-sm)",
-        border: isError ? "1px solid var(--state-danger-border)" : "1px solid var(--state-success-border)",
-        background: isError ? "var(--state-danger-soft)" : "var(--state-success-soft)",
+        border: `1px solid ${isError
+          ? "var(--state-danger-border)"
+          : result
+            ? "var(--tool-row-border)"
+            : "color-mix(in srgb, var(--state-info) 22%, transparent)"}`,
+        background: isError
+          ? "var(--state-danger-soft)"
+          : result
+            ? "var(--bg-subtle)"
+            : "color-mix(in srgb, var(--state-info) 4%, transparent)",
       }}
     >
       {/* ── Tool call header ── */}
       <div style={{ display: "flex", alignItems: "stretch", minWidth: 0 }}>
         <button
           onClick={() => setExpanded((v) => !v)}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 7,
-            flex: 1,
-            minWidth: 0,
-            padding: "6px 10px",
-            background: "none",
-            border: "none",
-            color: "var(--text-muted)",
-            cursor: "pointer",
-            fontSize: "var(--font-sm)",
-            textAlign: "left",
-          }}
+          className="agent-action-row"
+          aria-expanded={expanded}
         >
-          <span style={{ color: isError ? "var(--state-danger)" : "var(--state-success)", fontFamily: "var(--font-mono)", fontWeight: 600, fontSize: "var(--font-xs)", flexShrink: 0 }}>
+          <ActionStatusIcon status={isError ? "error" : result ? "success" : "running"} />
+          <span className="agent-action-name">
             {block.toolName}
           </span>
-          <span style={{ color: "var(--text-dim)", fontFamily: "var(--font-mono)", fontSize: "var(--font-xs)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, minWidth: 0 }}>
+          <span className="agent-action-desc">
             {isStreamingInput ? t("chat.generatingToolInput") : getToolPreview(block)}
           </span>
           {duration !== undefined && (
-            <span style={{ fontSize: "var(--font-xs)", color: "var(--text-dim)", flexShrink: 0, fontVariantNumeric: "tabular-nums" }}>{duration}s</span>
+            <span className="agent-action-meta">{duration}s</span>
           )}
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--text-dim)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, transform: expanded ? "rotate(180deg)" : "none", transition: "transform 0.15s" }}>
             <polyline points="2 3.5 5 6.5 8 3.5" />
