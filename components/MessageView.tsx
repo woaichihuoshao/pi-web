@@ -1051,8 +1051,8 @@ function ToolCallBlock({ block, result, duration, onOpenSession }: { block: Tool
         borderRadius: "var(--ui-radius-card)",
         overflow: "hidden",
         fontSize: "var(--font-sm)",
-        border: isError ? "1px solid var(--state-danger-border)" : "1px solid var(--state-success-border)",
-        background: isError ? "var(--state-danger-soft)" : "var(--state-success-soft)",
+        border: isError ? "1px solid var(--state-danger-border)" : "1px solid var(--border-subtle)",
+        background: isError ? "var(--state-danger-soft)" : "var(--bg-subtle)",
       }}
     >
       {/* ── Tool call header ── */}
@@ -1074,7 +1074,7 @@ function ToolCallBlock({ block, result, duration, onOpenSession }: { block: Tool
             textAlign: "left",
           }}
         >
-          <span style={{ color: isError ? "var(--state-danger)" : "var(--state-success)", fontFamily: "var(--font-mono)", fontWeight: 600, fontSize: "var(--font-xs)", flexShrink: 0 }}>
+          <span style={{ color: isError ? "var(--state-danger)" : "var(--text-muted)", fontFamily: "var(--font-mono)", fontWeight: 600, fontSize: "var(--font-xs)", flexShrink: 0 }}>
             {block.toolName}
           </span>
           <span style={{ color: "var(--text-dim)", fontFamily: "var(--font-mono)", fontSize: "var(--font-xs)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, minWidth: 0 }}>
@@ -1111,7 +1111,7 @@ function ToolCallBlock({ block, result, duration, onOpenSession }: { block: Tool
             lineHeight: 1.5,
             overflow: "auto",
             background: "var(--bg-subtle)",
-            borderTop: isError ? "1px solid var(--state-danger-border)" : "1px solid var(--state-success-border)",
+            borderTop: "1px solid var(--border-subtle)",
             whiteSpace: "pre-wrap",
             wordBreak: "break-all",
           }}
@@ -1149,7 +1149,7 @@ function PairedDiffResult({ diff }: {
   return (
     <div
       style={{
-        borderTop: "1px solid var(--state-success-border)",
+        borderTop: "1px solid var(--border-subtle)",
         background: "var(--bg)",
       }}
     >
