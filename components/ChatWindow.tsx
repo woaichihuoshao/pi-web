@@ -8,10 +8,10 @@ import { createPortal } from "react-dom";
 import type { AgentMessage, AssistantContentBlock, AssistantMessage, BashExecutionMessage, BlockingExtensionUiRequest, ExtensionUiRequest, SessionInfo, SessionTreeNode, ToolResultMessage, UserMessage } from "@/lib/types";
 import { normalizeCustomPanelLines } from "@/lib/ansi";
 import { asBracketedPaste, toTerminalKeyData } from "@/lib/terminal-input";
-import { getAssistantErrorMessage, isMessageGroupAnchor, isEmptyThinkingBlock, splitFinalAssistantBlocks } from "@/lib/message-display";
+import { countToolCallBlocks, getAssistantErrorMessage, getDisplayableAssistantBlocks, isMessageGroupAnchor, splitFinalAssistantBlocks } from "@/lib/message-display";
 import { extractTurnWrittenFiles, type WrittenFile } from "@/lib/turn-written-files";
 import { buildQuotedSelection } from "@/lib/quoted-selection";
-import { MessageView, TurnProcessGroup, type TurnProcessItem } from "./MessageView";
+import { MessageView } from "./MessageView";
 import { MarkdownBody } from "./MarkdownBody";
 import { ChatInput, type ChatInputHandle } from "./ChatInput";
 import { ChatMinimap, useMessageRefs } from "./ChatMinimap";
@@ -194,6 +194,52 @@ function withAssistantBlocks(
   const next = { ...message, content };
   if (options.omitUsage) next.usage = undefined;
   return next;
+}
+
+function ProcessDetailsGroup({ messageCount, toolCallCount, defaultExpanded = false, reveal = false, children, t }: { messageCount: number; toolCallCount: number; defaultExpanded?: boolean; reveal?: boolean; children: ReactNode; t: (key: string, params?: Record<string, string | number>) => string }) {
+  const [expanded, setExpanded] = useState(defaultExpanded);
+  useLayoutEffect(() => {
+    if (reveal) setExpanded(true);
+  }, [reveal]);
+  const parts = [t("chat.processDetails"), `${messageCount} ${t(messageCount === 1 ? "chat.message" : "chat.messages")}`];
+  if (toolCallCount > 0) parts.push(`${toolCallCount} ${t(toolCallCount === 1 ? "chat.toolCall" : "chat.toolCalls")}`);
+
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <button
+        type="button"
+        aria-expanded={expanded || reveal}
+        onClick={() => setExpanded((v) => !v)}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          width: "auto",
+          minHeight: 24,
+          padding: "2px 0",
+          border: "none",
+          background: "transparent",
+          color: "var(--text-muted)",
+          cursor: "pointer",
+          fontSize: "var(--font-sm)",
+          textAlign: "left",
+        }}
+        title={expanded ? t("chat.collapseProcess") : t("chat.expandProcess")}
+      >
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, transform: expanded ? "rotate(90deg)" : "none", transition: "transform 0.15s" }}>
+          <polyline points="4 2.5 7.5 6 4 9.5" />
+        </svg>
+        <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {parts.join(" · ")}
+        </span>
+      </button>
+      {(expanded || reveal) && (
+        <div style={{ marginTop: 8 }}>
+          {children}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initialScrollPosition, onScrollPositionChange, sessionRunning, newSessionCwd, newSessionDraftKey, onAgentEnd, onAttentionNeeded, onSessionCreated, onSessionForked, modelsRefreshKey, chatInputRef, onBranchDataChange, onSystemPromptChange, onSystemToolsChange, onSystemInfoLoaderChange, onSessionStatsChange, onSessionStatsPanelOpen, onContextUsageChange, onOpenFile, onOpenSession, onAskInNewChat, quoteSelectionEnabled = false, initialPrompt, onInitialPromptConsumed, soundEnabled = true, onSoundToggle, playDoneSound = () => {}, unlockAudio }: Props) {
@@ -707,16 +753,6 @@ export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initi
 
   const isEmptyNew = isNew && messages.length === 0 && !streamState.isStreaming && !sessionBusy;
   const hasStreamingContent = Boolean(streamState.streamingMessage?.content.length);
-  // 当前流式轮的过程组已经显示模型名时，流式气泡不再重复（一轮只出现一次）
-  const streamingTurnShowsModelLabel = (() => {
-    for (let i = messages.length - 1; i >= 0; i--) {
-      const m = messages[i];
-      if (isMessageGroupAnchor(m)) return false;
-      if (m.role !== "assistant") continue;
-      if (m.provider && (m.content ?? []).some((block) => !isEmptyThinkingBlock(block))) return true;
-    }
-    return false;
-  })();
   const messageCwd = session?.cwd ?? newSessionCwd ?? undefined;
   const promptAnchorSpacerRef = useRef<HTMLDivElement | null>(null);
   const promptAnchorSpacerHeightRef = useRef(0);
@@ -985,7 +1021,7 @@ export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initi
                 if (idx === lastUserIdx) { (lastUserMsgRef as { current: HTMLDivElement | null }).current = el; }
               };
 
-              const renderMessage = (idx: number, options: { attachRef?: boolean; keyPrefix?: string; messageOverride?: AgentMessage; showTimestamp?: boolean; showModelLabel?: boolean; writtenFiles?: WrittenFile[] } = {}): ReactNode => {
+              const renderMessage = (idx: number, options: { attachRef?: boolean; keyPrefix?: string; messageOverride?: AgentMessage; showTimestamp?: boolean; writtenFiles?: WrittenFile[] } = {}): ReactNode => {
                 const msg = options.messageOverride ?? messages[idx];
                 const isVisible = isMessageGroupAnchor(msg) || msg.role === "assistant";
                 const currentRefIdx = visibleRefIndexByMessage.get(idx);
@@ -1021,7 +1057,6 @@ export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initi
                     onNavigate={sessionBusy ? undefined : handleNavigate}
                     onEditContent={handleEditContent}
                     showTimestamp={showTimestamp}
-                    showModelLabel={options.showModelLabel}
                     prevTimestamp={idx > 0 ? (messages[idx - 1] as AgentMessage & { timestamp?: number }).timestamp : undefined}
                     sessionId={session?.id ?? sessionIdRef.current ?? undefined}
                     writtenFiles={options.writtenFiles}
@@ -1050,92 +1085,24 @@ export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initi
 
                 const finalAssistantIdx = findFinalAssistantIndex(messages, userIdx, endIdx);
 
-                const isLiveTail = (sessionBusy || streamState.isStreaming) && endIdx === messages.length && userIdx === lastAnchorIdx;
-
-                // 一轮用户消息 → 一个 Process Group：把该轮全部过程事件（思考 /
-                // 工具 / 自定义消息）收集成一组。finalIdx 指向承载最终正文的消息，
-                // 它的过程块也进组，正文块由调用方单独渲染成第一层正文。
-                const collectProcessItems = (
-                  fromIdx: number,
-                  toIdx: number,
-                  options: { finalIdx?: number; finalBlocks?: AssistantContentBlock[]; omitFinalUsage?: boolean } = {},
-                ): { items: TurnProcessItem[]; refIdx?: number; reveal: boolean } => {
-                  const items: TurnProcessItem[] = [];
-                  let refIdx: number | undefined;
-                  let reveal = false;
-                  for (let processIdx = fromIdx; processIdx < toIdx; processIdx++) {
-                    const processMessage = messages[processIdx];
-                    if (processMessage.role !== "assistant") {
-                      // 自定义消息 / 用户自己跑的 bash 等：保持原样渲染，不参与聚合
-                      if (processMessage.role === "toolResult") continue;
-                      reveal ||= Boolean(pendingSearchScroll && pendingSearchScroll.entryId === entryIds[processIdx]);
-                      items.push({
-                        kind: "node",
-                        key: `process-node-${entryIds[processIdx] ?? processIdx}`,
-                        node: renderMessage(processIdx, { attachRef: false, keyPrefix: "process" }),
-                      });
-                      continue;
-                    }
-                    const message = processIdx === options.finalIdx
-                      ? withAssistantBlocks(processMessage, options.finalBlocks ?? [], { omitUsage: options.omitFinalUsage })
-                      : processMessage;
-                    const blockItems = (message.content ?? [])
-                      .map((block, originalIndex) => ({ block, originalIndex }))
-                      .filter(({ block }) => !isEmptyThinkingBlock(block));
-                    if (blockItems.length === 0) continue;
-                    const blocks = blockItems.map(({ block }) => block);
-                    refIdx ??= visibleRefIndexByMessage.get(processIdx);
-                    reveal ||= Boolean(pendingSearchScroll && entryIds[processIdx] === pendingSearchScroll.entryId && (!searchBlock || blocks.includes(searchBlock)));
-                    items.push({
-                      kind: "blocks",
-                      key: `process-${entryIds[processIdx] ?? processIdx}`,
-                      message,
-                      entryId: entryIds[processIdx],
-                      blockItems,
-                      prevTimestamp: processIdx > 0 ? (messages[processIdx - 1] as AgentMessage & { timestamp?: number }).timestamp : undefined,
-                      searchBlock: entryIds[processIdx] === pendingSearchScroll?.entryId ? searchBlock : undefined,
-                    });
+                if (finalAssistantIdx === -1) {
+                  for (let renderIdx = userIdx; renderIdx < endIdx; renderIdx++) {
+                    rendered.push(renderMessage(renderIdx));
                   }
-                  return { items, refIdx, reveal };
-                };
-
-                const renderProcessGroup = (
-                  turn: { items: TurnProcessItem[]; refIdx?: number; reveal: boolean },
-                  options: { suffix?: string; defaultExpanded: boolean },
-                ): boolean => {
-                  if (turn.items.length === 0) return false;
-                  const groupShowsModelLabel = turn.items.some((item) => item.kind === "blocks" && Boolean(item.message.provider));
-                  const refIdx = turn.refIdx;
-                  rendered.push(
-                    <div
-                      key={`process-group-${entryIds[userIdx] ?? userIdx}${options.suffix ?? ""}`}
-                      ref={refIdx === undefined ? undefined : (el) => { messageRefs.current[refIdx] = el; }}
-                    >
-                      <TurnProcessGroup
-                        items={turn.items}
-                        toolResults={toolResultsMap}
-                        modelNames={modelNames}
-                        cwd={messageCwd}
-                        onOpenFile={onOpenFile}
-                        onOpenSession={onOpenSession}
-                        sessionId={session?.id ?? sessionIdRef.current ?? undefined}
-                        defaultExpanded={options.defaultExpanded}
-                        reveal={turn.reveal}
-                      />
-                    </div>,
-                  );
-                  return groupShowsModelLabel;
-                };
-
-                if (finalAssistantIdx === -1 || isLiveTail) {
-                  // 没有最终正文（含仍在流式输出的当前轮）：整轮过程合为一组，默认展开。
-                  // -live / -done 后缀让流式结束后重新挂载为默认折叠状态。
-                  const turn = collectProcessItems(userIdx + 1, endIdx);
-                  rendered.push(renderMessage(userIdx));
-                  renderProcessGroup(turn, { suffix: isLiveTail ? "-live" : "-done", defaultExpanded: true });
                   idx = endIdx;
                   continue;
                 }
+
+                const isLiveTail = (sessionBusy || streamState.isStreaming) && endIdx === messages.length && userIdx === lastAnchorIdx;
+                if (isLiveTail) {
+                  for (let renderIdx = userIdx; renderIdx < endIdx; renderIdx++) {
+                    rendered.push(renderMessage(renderIdx));
+                  }
+                  idx = endIdx;
+                  continue;
+                }
+
+                rendered.push(renderMessage(userIdx));
 
                 const finalAssistant = messages[finalAssistantIdx] as AssistantMessage;
                 const finalSplit = splitFinalAssistantBlocks(finalAssistant);
@@ -1147,14 +1114,47 @@ export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initi
                 // Keep the original prefix so deferred thinking retains its stored block indices.
                 const finalProcessBlocks = finalAssistant.content.slice(0, finalProcessEnd < 0 ? undefined : finalProcessEnd);
 
-                rendered.push(renderMessage(userIdx));
+                const processViews: ReactNode[] = [];
+                let processToolCount = 0;
+                let processRefIdx: number | undefined;
+                let revealProcess = false;
 
-                const turnProcess = collectProcessItems(userIdx + 1, finalAssistantIdx + 1, {
-                  finalIdx: finalAssistantIdx,
-                  finalBlocks: finalProcessBlocks,
-                  omitFinalUsage: Boolean(finalAnswerMessage),
-                });
-                const groupShowsModelLabel = renderProcessGroup(turnProcess, { defaultExpanded: !finalAnswerMessage });
+                for (let processIdx = userIdx + 1; processIdx <= finalAssistantIdx; processIdx++) {
+                  const processMessage = messages[processIdx];
+                  if (processMessage.role === "custom") {
+                    revealProcess ||= Boolean(pendingSearchScroll && pendingSearchScroll.entryId === entryIds[processIdx]);
+                    processViews.push(renderMessage(processIdx, { attachRef: false, keyPrefix: "process" }));
+                    continue;
+                  }
+                  if (processMessage.role !== "assistant") continue;
+                  const message = processIdx === finalAssistantIdx
+                    ? withAssistantBlocks(processMessage, finalProcessBlocks, { omitUsage: Boolean(finalAnswerMessage) })
+                    : processMessage;
+                  const blocks = getDisplayableAssistantBlocks(message);
+                  if (blocks.length === 0) continue;
+                  processRefIdx ??= visibleRefIndexByMessage.get(processIdx);
+                  processToolCount += countToolCallBlocks(blocks);
+                  revealProcess ||= Boolean(pendingSearchScroll && entryIds[processIdx] === pendingSearchScroll.entryId && (!searchBlock || blocks.includes(searchBlock)));
+                  processViews.push(renderMessage(processIdx, {
+                    attachRef: false,
+                    keyPrefix: "process",
+                    messageOverride: message,
+                    showTimestamp: false,
+                  }));
+                }
+
+                if (processViews.length > 0) {
+                  rendered.push(
+                    <div
+                      key={`process-group-${entryIds[userIdx] ?? userIdx}`}
+                      ref={processRefIdx === undefined ? undefined : (el) => { messageRefs.current[processRefIdx] = el; }}
+                    >
+                      <ProcessDetailsGroup messageCount={processViews.length} toolCallCount={processToolCount} defaultExpanded={!finalAnswerMessage} reveal={revealProcess} t={t}>
+                        {processViews}
+                      </ProcessDetailsGroup>
+                    </div>,
+                  );
+                }
 
                 if (finalAnswerMessage) {
                   // Each tool call is stored as its own assistant entry, so the
@@ -1172,8 +1172,6 @@ export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initi
                   rendered.push(renderMessage(finalAssistantIdx, {
                     messageOverride: finalAnswerMessage,
                     writtenFiles,
-                    // 模型名由过程组显示，一轮只出现一次
-                    showModelLabel: !groupShowsModelLabel,
                   }));
                 }
                 for (let renderIdx = finalAssistantIdx + 1; renderIdx < endIdx; renderIdx++) {
@@ -1195,7 +1193,7 @@ export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initi
               );
             })()}
             {streamState.isStreaming && hasStreamingContent && streamState.streamingMessage && (
-              <MessageView message={streamState.streamingMessage as AgentMessage} toolResults={toolResultsMap} isStreaming modelNames={modelNames} cwd={messageCwd} onOpenFile={onOpenFile} onOpenSession={onOpenSession} showModelLabel={!streamingTurnShowsModelLabel} />
+              <MessageView message={streamState.streamingMessage as AgentMessage} toolResults={toolResultsMap} isStreaming modelNames={modelNames} cwd={messageCwd} onOpenFile={onOpenFile} onOpenSession={onOpenSession} />
             )}
 
             {agentRunning && !hasStreamingContent && agentPhase && (

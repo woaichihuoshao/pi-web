@@ -1,13 +1,14 @@
 "use client";
 
-import { memo, useState, useRef, useEffect, useLayoutEffect, useMemo , type ReactNode } from "react";
+import { memo, useState, useRef, useEffect, useMemo } from "react";
+import ReactMarkdown from "react-markdown";
 import { MarkdownBody } from "./MarkdownBody";
 import { ImagePreview } from "./ImagePreview";
+import { ThinkingIcon } from "./ThinkingIcon";
 import { useTheme } from "@/hooks/useTheme";
 import { usesDeepSeekBrand } from "@/lib/brand-theme";
 import { copyText } from "@/lib/clipboard";
 import { useI18n } from "@/hooks/useI18n";
-import type { TranslationParams } from "@/lib/i18n/types";
 import { parseCompactionSummary } from "@/lib/compaction-summary";
 import { getAssistantErrorMessage, getThinkingPreview, isEmptyThinkingBlock } from "@/lib/message-display";
 import { parseUnifiedPatch, type SplitDiffCell } from "@/lib/patch";
@@ -197,8 +198,6 @@ interface Props {
   onNavigate?: (entryId: string) => Promise<boolean>;
   onEditContent?: (message: UserMessage) => void;
   showTimestamp?: boolean;
-  /** 同一轮只显示一次模型名：过程组已负责显示时，正文消息传 false。 */
-  showModelLabel?: boolean;
   prevTimestamp?: number;
   sessionId?: string;
   /**
@@ -275,12 +274,12 @@ function haveSameRelevantToolResults(
   return true;
 }
 
-export const MessageView = memo(function MessageView({ message, isStreaming, toolResults, modelNames, cwd, onOpenFile, onOpenSession, entryId, searchBlock, onFork, forking, onNavigate, onEditContent, showTimestamp, showModelLabel, prevTimestamp, sessionId, writtenFiles }: Props) {
+export const MessageView = memo(function MessageView({ message, isStreaming, toolResults, modelNames, cwd, onOpenFile, onOpenSession, entryId, searchBlock, onFork, forking, onNavigate, onEditContent, showTimestamp, prevTimestamp, sessionId, writtenFiles }: Props) {
   if (message.role === "user") {
     return <UserMessageView message={message as UserMessage} cwd={cwd} onOpenFile={onOpenFile} entryId={entryId} onFork={onFork} forking={forking} onNavigate={onNavigate} onEditContent={onEditContent} />;
   }
   if (message.role === "assistant") {
-    return <AssistantMessageView message={message as AssistantMessage} isStreaming={isStreaming} toolResults={toolResults} modelNames={modelNames} cwd={cwd} onOpenFile={onOpenFile} onOpenSession={onOpenSession} showTimestamp={showTimestamp} showModelLabel={showModelLabel} prevTimestamp={prevTimestamp} sessionId={sessionId} entryId={entryId} searchBlock={searchBlock} writtenFiles={writtenFiles} />;
+    return <AssistantMessageView message={message as AssistantMessage} isStreaming={isStreaming} toolResults={toolResults} modelNames={modelNames} cwd={cwd} onOpenFile={onOpenFile} onOpenSession={onOpenSession} showTimestamp={showTimestamp} prevTimestamp={prevTimestamp} sessionId={sessionId} entryId={entryId} searchBlock={searchBlock} writtenFiles={writtenFiles} />;
   }
   if (message.role === "toolResult") {
     // Rendered inline under its toolCall — skip standalone rendering if paired
@@ -311,7 +310,6 @@ export const MessageView = memo(function MessageView({ message, isStreaming, too
     && prev.onNavigate === next.onNavigate
     && prev.onEditContent === next.onEditContent
     && prev.showTimestamp === next.showTimestamp
-    && prev.showModelLabel === next.showModelLabel
     && prev.prevTimestamp === next.prevTimestamp
     && prev.writtenFiles === next.writtenFiles
     && prev.sessionId === next.sessionId;
@@ -609,7 +607,6 @@ function AssistantMessageView({
   onOpenFile,
   onOpenSession,
   showTimestamp,
-  showModelLabel,
   prevTimestamp,
   sessionId,
   entryId,
@@ -624,7 +621,6 @@ function AssistantMessageView({
   onOpenFile?: (filePath: string) => void;
   onOpenSession?: (sessionId: string) => void;
   showTimestamp?: boolean;
-  showModelLabel?: boolean;
   prevTimestamp?: number;
   sessionId?: string;
   entryId?: string;
@@ -633,30 +629,10 @@ function AssistantMessageView({
 }) {
   const { t } = useI18n();
   const time = showTimestamp ? formatTime(message.timestamp) : null;
-  // 一轮只显示一次模型名：过程组已经显示过时，这里不再重复。
-  const modelLabel = showModelLabel === false || !message.provider
-    ? null
-    : getModelDisplayName(message.provider, message.model, modelNames);
   const blockItems = useMemo(() => (message.content ?? [])
     .map((block, originalIndex) => ({ block, originalIndex }))
     .filter(({ block }) => !isEmptyThinkingBlock(block, { isStreaming })), [message.content, isStreaming]);
   const blocks = useMemo(() => blockItems.map(({ block }) => block), [blockItems]);
-
-  // 三层架构：正文直出，连续的过程块（思考/工具）合并成一行摘要
-  const segments = useMemo(() => {
-    const out: Array<{ kind: "block"; item: (typeof blockItems)[number] } | { kind: "process"; items: (typeof blockItems)[number][] }> = [];
-    for (const item of blockItems) {
-      const isProcess = item.block.type === "thinking" || item.block.type === "toolCall";
-      if (!isProcess) {
-        out.push({ kind: "block", item });
-        continue;
-      }
-      const last = out[out.length - 1];
-      if (last && last.kind === "process") last.items.push(item);
-      else out.push({ kind: "process", items: [item] });
-    }
-    return out;
-  }, [blockItems]);
   const providerError = getAssistantErrorMessage(message, { isStreaming });
   const [hovered, setHovered] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -786,7 +762,7 @@ function AssistantMessageView({
       onMouseLeave={() => setHovered(false)}
     >
       {/* Model label */}
-      {(modelLabel || isStreaming) && <div
+      <div
         style={{
           fontSize: "var(--font-xs)",
           color: "var(--text-dim)",
@@ -796,8 +772,8 @@ function AssistantMessageView({
           gap: 6,
         }}
       >
-        {modelLabel && (
-          <span>{modelLabel}</span>
+        {message.provider && (
+          <span>{getModelDisplayName(message.provider, message.model, modelNames)}</span>
         )}
         {isStreaming && (() => {
           const est = Math.round(estimatedTokens);
@@ -825,34 +801,12 @@ function AssistantMessageView({
             </>
           );
         })()}
-      </div>}
+      </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        {segments.map((segment) => {
-          const renderItem = ({ block, originalIndex }: { block: AssistantContentBlock; originalIndex: number }) => (
-            <BlockView
-              key={`${entryId ?? "stream"}-${originalIndex}`}
-              block={block}
-              searchTarget={block === searchBlock}
-              toolResults={toolResults}
-              isStreaming={isStreaming}
-              streamingDuration={streamingDurations.get(originalIndex) ?? (block.type === "thinking" ? thinkingDurationFromFile : undefined)}
-              toolCallDurations={toolCallDurations}
-              cwd={cwd}
-              onOpenFile={onOpenFile}
-              onOpenSession={onOpenSession}
-              sessionId={sessionId}
-              entryId={entryId}
-              blockIndex={originalIndex}
-            />
-          );
-          if (segment.kind === "block") return renderItem(segment.item);
-          return (
-            <ProcessGroup key={`group-${entryId ?? "stream"}-${segment.items[0].originalIndex}`} summary={summarizeProcess(segment.items, { t, toolCallDurations, streamingDurations, thinkingDurationFromFile })}>
-              {segment.items.map(renderItem)}
-            </ProcessGroup>
-          );
-        })}
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {blockItems.map(({ block, originalIndex }) => (
+          <BlockView key={`${entryId ?? "stream"}-${originalIndex}`} block={block} searchTarget={block === searchBlock} toolResults={toolResults} isStreaming={isStreaming} streamingDuration={streamingDurations.get(originalIndex) ?? (block.type === "thinking" ? thinkingDurationFromFile : undefined)} toolCallDurations={toolCallDurations} cwd={cwd} onOpenFile={onOpenFile} onOpenSession={onOpenSession} sessionId={sessionId} entryId={entryId} blockIndex={originalIndex} />
+        ))}
       </div>
 
       {providerError && (
@@ -957,10 +911,12 @@ export function ThinkingBlock({ block, duration, sessionId, entryId, blockIndex 
   blockIndex: number;
 }) {
   const { t } = useI18n();
+  const { theme } = useTheme();
   const [expanded, setExpanded] = useState(isThinkingExpandedByDefault);
   const [content, setContent] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const shimmer = usesDeepSeekBrand(theme) && !expanded;
   const tRef = useRef(t);
   tRef.current = t;
   const preview = getThinkingPreview(block.thinking);
@@ -1004,28 +960,63 @@ export function ThinkingBlock({ block, duration, sessionId, entryId, blockIndex 
   }, [expanded, block.deferred, content, sessionId, entryId, blockIndex]);
 
   return (
-    <div className="agent-action">
+    <div style={{
+      display: "flex", alignItems: "flex-start", gap: 6, minWidth: 0,
+      border: "1px solid var(--border)",
+      borderRadius: 7,
+      padding: "6px 10px",
+      background: "var(--bg)",
+      fontFamily: "var(--font-mono)",
+      fontSize: "calc(11px + var(--chat-font-size-offset, 0px))",
+      lineHeight: 1.5,
+    }}>
       <button
         type="button"
-        className="agent-action-head"
         aria-expanded={expanded}
-        aria-label={`${t("chat.reasoning")}${preview ? `: ${preview}` : ""}`}
+        aria-label={`${t("i18n.thinking")}${preview ? `: ${preview}` : ""}`}
         title={t("i18n.thinking")}
         onClick={() => setExpanded((v) => !v)}
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 6,
+          width: expanded ? 14 : "100%",
+          flexShrink: expanded ? 0 : 1,
+          minWidth: 0,
+          minHeight: "1.5em",
+          padding: 0,
+          background: "transparent",
+          border: "none",
+          color: "var(--text-muted)",
+          cursor: "pointer",
+          font: "inherit",
+          textAlign: "left",
+        }}
       >
-        <ReasoningStatusIcon />
-        <span className="agent-action-type">{t("chat.reasoning")}</span>
-        <span className="agent-action-title">{preview || t("i18n.thinking")}</span>
-        {duration !== undefined && <span className="agent-action-meta">{duration}s</span>}
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--text-dim)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, transform: expanded ? "rotate(180deg)" : "none", transition: "transform 0.15s" }} aria-hidden="true">
-          <polyline points="2 3.5 5 6.5 8 3.5" />
-        </svg>
+        <ThinkingIcon active={expanded} />
+        {!expanded && (
+          <span className={shimmer ? "deepseek-thinking-shimmer" : undefined} style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {shimmer && duration
+              ? t("chat.thoughtFor", { seconds: duration })
+              : preview ? <ReactMarkdown allowedElements={[]} unwrapDisallowed skipHtml>{preview}</ReactMarkdown> : "..."}
+          </span>
+        )}
       </button>
       {expanded && (
-        <ReasoningBody
-          text={loading ? t("i18n.loadingThinking") : error ?? (block.deferred ? content : block.thinking)}
-          danger={Boolean(error)}
-        />
+        <div
+          style={{
+            flex: 1,
+            minWidth: 0,
+            color: error ? "var(--state-danger)" : "var(--text-muted)",
+            whiteSpace: "pre-wrap",
+            overflowWrap: "anywhere",
+          }}
+        >
+           {loading ? t("i18n.loadingThinking") : error ?? (block.deferred ? content : block.thinking)}
+        </div>
+      )}
+      {duration !== undefined && (
+        <span style={{ flexShrink: 0, color: "var(--text-dim)", fontVariantNumeric: "tabular-nums" }}>{duration}s</span>
       )}
     </div>
   );
@@ -1035,310 +1026,6 @@ function isSubagentToolDetails(value: unknown): value is SubagentToolDetails {
   if (!value || typeof value !== "object") return false;
   const details = value as Partial<SubagentToolDetails>;
   return details.kind === "pi-web-subagent" && typeof details.sessionId === "string";
-}
-
-function ReasoningBody({ text, danger }: { text: string | null | undefined; danger?: boolean }) {
-  const paragraphs = String(text ?? "").split(/\n{2,}/).filter((p) => p.trim() !== "");
-  return (
-    <div className="agent-action-detail" style={danger ? { color: "var(--state-danger)" } : undefined}>
-      {(paragraphs.length ? paragraphs : [""]).map((paragraph, index) => (
-        <p key={index}>{paragraph}</p>
-      ))}
-    </div>
-  );
-}
-
-function ReasoningStatusIcon() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--text-dim)" strokeWidth="1.5" strokeLinejoin="round" style={{ flexShrink: 0 }} aria-hidden="true">
-      <rect x="2.9" y="2.9" width="6.2" height="6.2" rx="1" transform="rotate(45 6 6)" />
-    </svg>
-  );
-}
-
-const TRACE_EDIT_TOOLS = new Set(["edit", "write", "multiedit", "patch", "apply_patch", "create_file", "str_replace"]);
-const TRACE_COMMAND_TOOLS = new Set(["bash", "shell", "process", "terminal"]);
-const TRACE_READ_TOOLS = new Set(["read", "grep", "find", "glob", "ls", "list", "search"]);
-
-interface ProcessSummaryCounts {
-  thinkingSeconds: number;
-  edits: number;
-  commands: number;
-  reads: number;
-  other: number;
-}
-
-function countProcessSummary(
-  items: Array<{ block: AssistantContentBlock; thinkingSeconds?: number }>,
-): ProcessSummaryCounts {
-  const counts: ProcessSummaryCounts = { thinkingSeconds: 0, edits: 0, commands: 0, reads: 0, other: 0 };
-  for (const { block, thinkingSeconds = 0 } of items) {
-    if (block.type === "thinking") {
-      counts.thinkingSeconds += thinkingSeconds;
-      continue;
-    }
-    if (block.type !== "toolCall") continue;
-    const name = block.toolName;
-    if (TRACE_EDIT_TOOLS.has(name)) counts.edits += 1;
-    else if (TRACE_COMMAND_TOOLS.has(name)) counts.commands += 1;
-    else if (TRACE_READ_TOOLS.has(name)) counts.reads += 1;
-    else counts.other += 1;
-  }
-  return counts;
-}
-
-function formatProcessSummary(
-  counts: ProcessSummaryCounts,
-  t: (key: string, params?: TranslationParams) => string,
-): string {
-  const parts: string[] = [];
-  if (counts.thinkingSeconds > 0) parts.push(t("trace.thoughtForSeconds", { seconds: counts.thinkingSeconds }));
-  if (counts.edits > 0) parts.push(t("trace.editedFiles", { count: counts.edits }));
-  if (counts.commands > 0) parts.push(t("trace.ranCommands", { count: counts.commands }));
-  if (counts.reads > 0) parts.push(t("trace.readFiles", { count: counts.reads }));
-  if (counts.other > 0) parts.push(t("trace.actions", { count: counts.other }));
-  return parts.join(" · ");
-}
-
-/** 三层架构第二层：把一段连续的过程块折叠成一行摘要（正文仍是第一层） */
-function summarizeProcess(
-  items: Array<{ block: AssistantContentBlock; originalIndex: number }>,
-  ctx: {
-    t: (key: string, params?: TranslationParams) => string;
-    toolCallDurations?: Map<string, number>;
-    streamingDurations: Map<number, number>;
-    thinkingDurationFromFile?: number;
-  },
-): string {
-  return formatProcessSummary(countProcessSummary(items.map(({ block, originalIndex }) => ({
-    block,
-    thinkingSeconds: block.type === "thinking"
-      ? ctx.streamingDurations.get(originalIndex) ?? ctx.thinkingDurationFromFile ?? 0
-      : 0,
-  }))), ctx.t);
-}
-
-function ProcessGroup({ summary, children }: { summary: string; children: ReactNode }) {
-  const [open, setOpen] = useState(false);
-  const { t } = useI18n();
-  return (
-    <div>
-      <button
-        type="button"
-        className="trace-group-toggle"
-        aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-      >
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--text-dim)" strokeWidth="1.5" strokeLinejoin="round" style={{ flexShrink: 0 }} aria-hidden="true">
-          <rect x="2.9" y="2.9" width="6.2" height="6.2" rx="1" transform="rotate(45 6 6)" />
-        </svg>
-        <span className="trace-group-summary">{summary}</span>
-        <span className="trace-group-hint">{open ? t("trace.collapse") : t("trace.expand")}</span>
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--text-dim)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.15s" }} aria-hidden="true">
-          <polyline points="2 3.5 5 6.5 8 3.5" />
-        </svg>
-      </button>
-      {/* 保持渲染（保持既有测试与折叠状态下的 DOM 结构），仅用 CSS 隐藏 */}
-      <div className="trace-group-body" style={{ display: open ? "flex" : "none" }}>{children}</div>
-    </div>
-  );
-}
-
-/** 一轮用户消息中的一个过程成员：assistant 块列表，或无法聚合的自定义消息节点。 */
-export type TurnProcessItem =
-  | {
-      kind: "blocks";
-      key: string;
-      message: AssistantMessage;
-      entryId?: string;
-      /** 参与渲染的块（保留原始 content 下标，供 thinking 按需加载使用） */
-      blockItems: Array<{ block: AssistantContentBlock; originalIndex: number }>;
-      /** 上一条消息的时间戳，用于从消息时间戳差推导思考时长 */
-      prevTimestamp?: number;
-      searchBlock?: AssistantContentBlock;
-    }
-  | { kind: "node"; key: string; node: ReactNode };
-
-/** thinking 块时长：文件时间戳差（与 AssistantMessageView 一致）。 */
-function getThinkingSeconds(message: AssistantMessage, prevTimestamp?: number): number {
-  if (!message.timestamp || !prevTimestamp) return 0;
-  const secs = Math.round((message.timestamp - prevTimestamp) / 1000);
-  return secs > 0 ? secs : 0;
-}
-
-function formatCompactCount(value: number): string {
-  return value >= 1000 ? `${Math.round(value / 1000)}k` : String(value);
-}
-
-/** 过程组底部的聚合 token 行（只在展开时出现）。 */
-function formatTurnUsage(usage: { input: number; output: number; cacheRead: number; cacheWrite: number; cost: number }): string {
-  const parts: string[] = [];
-  if (usage.input) parts.push(`${usage.input.toLocaleString()} in`);
-  if (usage.output) parts.push(`${usage.output.toLocaleString()} out`);
-  if (usage.cacheRead) parts.push(`${formatCompactCount(usage.cacheRead)} cached`);
-  if (usage.cacheWrite) parts.push(`${formatCompactCount(usage.cacheWrite)} cache W`);
-  if (usage.cost) parts.push(`$${usage.cost.toFixed(4)}`);
-  return parts.join(" · ");
-}
-
-type TurnProcessBlocksItem = Extract<TurnProcessItem, { kind: "blocks" }>;
-
-/** 单个消息的动作行：跨渲染保持稳定，避免流式期间重建全部已完成动作行。 */
-const TurnProcessRows = memo(function TurnProcessRows({ item, toolResults, cwd, onOpenFile, onOpenSession, sessionId }: {
-  item: TurnProcessBlocksItem;
-  toolResults?: Map<string, ToolResultMessage>;
-  cwd?: string;
-  onOpenFile?: (filePath: string) => void;
-  onOpenSession?: (sessionId: string) => void;
-  sessionId?: string;
-}) {
-  const durations = new Map<string, number>();
-  if (toolResults && item.message.timestamp) {
-    for (const { block } of item.blockItems) {
-      if (block.type !== "toolCall") continue;
-      const result = toolResults.get(block.toolCallId);
-      if (!result?.timestamp) continue;
-      const secs = Math.round((result.timestamp - item.message.timestamp) / 1000);
-      if (secs > 0) durations.set(block.toolCallId, secs);
-    }
-  }
-  const thinkingSeconds = getThinkingSeconds(item.message, item.prevTimestamp);
-  return item.blockItems.map(({ block, originalIndex }) => (
-    <BlockView
-      key={`${item.key}-${originalIndex}`}
-      block={block}
-      searchTarget={block === item.searchBlock}
-      toolResults={toolResults}
-      streamingDuration={block.type === "thinking" && thinkingSeconds > 0 ? thinkingSeconds : undefined}
-      toolCallDurations={durations}
-      cwd={cwd}
-      onOpenFile={onOpenFile}
-      onOpenSession={onOpenSession}
-      sessionId={sessionId}
-      entryId={item.entryId}
-      blockIndex={originalIndex}
-    />
-  ));
-}, (prev, next) => {
-  if (prev.item === next.item) return true;
-  if (prev.item.message !== next.item.message) return false;
-  if (prev.item.prevTimestamp !== next.item.prevTimestamp) return false;
-  if (prev.item.searchBlock !== next.item.searchBlock) return false;
-  if (prev.cwd !== next.cwd || prev.onOpenFile !== next.onOpenFile) return false;
-  if (prev.onOpenSession !== next.onOpenSession || prev.sessionId !== next.sessionId) return false;
-  const a = prev.item.blockItems;
-  const b = next.item.blockItems;
-  if (a.length !== b.length) return false;
-  for (let i = 0; i < a.length; i++) {
-    if (a[i].block !== b[i].block || a[i].originalIndex !== b[i].originalIndex) return false;
-  }
-  return haveSameRelevantToolResults(prev.item.message, prev.toolResults, next.toolResults);
-});
-
-/**
- * 三层架构第二层（回合级）：一轮用户消息的全部过程事件合并成一个 Process Group。
- * 模型名只显示一次，工具/思考行连续排列，token 统计聚合到展开区底部。
- */
-export function TurnProcessGroup({
-  items,
-  toolResults,
-  modelNames,
-  cwd,
-  onOpenFile,
-  onOpenSession,
-  sessionId,
-  defaultExpanded = false,
-  reveal = false,
-}: {
-  items: TurnProcessItem[];
-  toolResults?: Map<string, ToolResultMessage>;
-  modelNames?: Record<string, string>;
-  cwd?: string;
-  onOpenFile?: (filePath: string) => void;
-  onOpenSession?: (sessionId: string) => void;
-  sessionId?: string;
-  defaultExpanded?: boolean;
-  reveal?: boolean;
-}) {
-  const { t } = useI18n();
-  const [open, setOpen] = useState(defaultExpanded);
-  useLayoutEffect(() => {
-    if (reveal) setOpen(true);
-  }, [reveal]);
-
-  const summary = formatProcessSummary(countProcessSummary(items.flatMap((item) => item.kind !== "blocks"
-    ? []
-    : item.blockItems.map(({ block }) => ({
-      block,
-      thinkingSeconds: block.type === "thinking" ? getThinkingSeconds(item.message, item.prevTimestamp) : 0,
-    })))), t);
-
-  let modelLabel: string | null = null;
-  const usageTotal = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, cost: 0 };
-  for (const item of items) {
-    if (item.kind !== "blocks") continue;
-    if (modelLabel === null && item.message.provider) {
-      modelLabel = getModelDisplayName(item.message.provider, item.message.model, modelNames);
-    }
-    const usage = item.message.usage;
-    if (!usage) continue;
-    usageTotal.input += usage.input ?? 0;
-    usageTotal.output += usage.output ?? 0;
-    usageTotal.cacheRead += usage.cacheRead ?? 0;
-    usageTotal.cacheWrite += usage.cacheWrite ?? 0;
-    usageTotal.cost += usage.cost?.total ?? 0;
-  }
-  const usageText = formatTurnUsage(usageTotal);
-
-  return (
-    <div style={{ marginBottom: 20 }}>
-      {modelLabel && (
-        <div style={{ fontSize: "var(--font-xs)", color: "var(--text-dim)", marginBottom: 10 }}>{modelLabel}</div>
-      )}
-      {summary.length > 0 && (
-        <button
-          type="button"
-          className="trace-group-toggle"
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
-          title={open ? t("trace.collapse") : t("trace.expand")}
-        >
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--text-dim)" strokeWidth="1.5" strokeLinejoin="round" style={{ flexShrink: 0 }} aria-hidden="true">
-            <rect x="2.9" y="2.9" width="6.2" height="6.2" rx="1" transform="rotate(45 6 6)" />
-          </svg>
-          <span className="trace-group-summary">{summary}</span>
-          <span className="trace-group-hint">{open ? t("trace.collapse") : t("trace.expand")}</span>
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--text-dim)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.15s" }} aria-hidden="true">
-            <polyline points="2 3.5 5 6.5 8 3.5" />
-          </svg>
-        </button>
-      )}
-      {/* 保持渲染（保持既有测试与折叠状态下的 DOM 结构），仅用 CSS 隐藏 */}
-      <div className="trace-group-body" style={{ display: summary.length === 0 || open ? "flex" : "none" }}>
-        {items.map((item) => (
-          <div key={item.key}>
-            {item.kind === "node"
-              ? item.node
-              : <TurnProcessRows item={item} toolResults={toolResults} cwd={cwd} onOpenFile={onOpenFile} onOpenSession={onOpenSession} sessionId={sessionId} />}
-          </div>
-        ))}
-        {usageText && <div className="trace-group-usage">{usageText}</div>}
-      </div>
-    </div>
-  );
-}
-
-function ActionStatusIcon({ status }: { status: "running" | "success" | "error" | "waiting" }) {
-  if (status === "running") return <span className="agent-status-dot" style={{ background: "var(--state-info)" }} aria-hidden="true" />;
-  const color = status === "error" ? "var(--state-danger)" : status === "success" ? "var(--state-success)" : "var(--text-dim)";
-  const label = status === "error" ? "×" : status === "success" ? "✓" : "○";
-  return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }} role="img" aria-label={label}>
-      {status === "success" && <polyline points="2 6.5 4.8 9.3 10 3.2" />}
-      {status === "error" && (<><line x1="3" y1="3" x2="9" y2="9" /><line x1="9" y1="3" x2="3" y2="9" /></>)}
-      {status === "waiting" && <circle cx="6" cy="6" r="3.6" />}
-    </svg>
-  );
 }
 
 function ToolCallBlock({ block, result, duration, onOpenSession }: { block: ToolCallContent; result?: ToolResultMessage; duration?: number; onOpenSession?: (sessionId: string) => void }) {
@@ -1359,21 +1046,42 @@ function ToolCallBlock({ block, result, duration, onOpenSession }: { block: Tool
   const subagent = isSubagentToolDetails(result?.details) ? result.details : null;
 
   return (
-    <div className={"agent-action" + (isError ? " is-error" : result ? "" : " is-running")}>
+    <div
+      style={{
+        borderRadius: "var(--ui-radius-card)",
+        overflow: "hidden",
+        fontSize: "var(--font-sm)",
+        border: isError ? "1px solid var(--state-danger-border)" : "1px solid var(--state-success-border)",
+        background: isError ? "var(--state-danger-soft)" : "var(--state-success-soft)",
+      }}
+    >
       {/* ── Tool call header ── */}
       <div style={{ display: "flex", alignItems: "stretch", minWidth: 0 }}>
         <button
           onClick={() => setExpanded((v) => !v)}
-          className="agent-action-head"
-          aria-expanded={expanded}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 7,
+            flex: 1,
+            minWidth: 0,
+            padding: "6px 10px",
+            background: "none",
+            border: "none",
+            color: "var(--text-muted)",
+            cursor: "pointer",
+            fontSize: "var(--font-sm)",
+            textAlign: "left",
+          }}
         >
-          <ActionStatusIcon status={isError ? "error" : result ? "success" : "running"} />
-          <span className="agent-action-type">{block.toolName}</span>
-          <span className="agent-action-title">
+          <span style={{ color: isError ? "var(--state-danger)" : "var(--state-success)", fontFamily: "var(--font-mono)", fontWeight: 600, fontSize: "var(--font-xs)", flexShrink: 0 }}>
+            {block.toolName}
+          </span>
+          <span style={{ color: "var(--text-dim)", fontFamily: "var(--font-mono)", fontSize: "var(--font-xs)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, minWidth: 0 }}>
             {isStreamingInput ? t("chat.generatingToolInput") : getToolPreview(block)}
           </span>
           {duration !== undefined && (
-            <span className="agent-action-meta">{duration}s</span>
+            <span style={{ fontSize: "var(--font-xs)", color: "var(--text-dim)", flexShrink: 0, fontVariantNumeric: "tabular-nums" }}>{duration}s</span>
           )}
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--text-dim)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, transform: expanded ? "rotate(180deg)" : "none", transition: "transform 0.15s" }}>
             <polyline points="2 3.5 5 6.5 8 3.5" />
@@ -1392,14 +1100,24 @@ function ToolCallBlock({ block, result, duration, onOpenSession }: { block: Tool
         )}
       </div>
 
-      {/* 折叠时显示"实际执行了什么"：等宽、次要色、单行省略 */}
-      {!expanded && !isStreamingInput && inputStr && !isEditTool && (
-        <span className="agent-action-command">{inputStr}</span>
-      )}
-
       {/* ── Expanded: input args ── */}
       {expanded && (isStreamingInput || !isEditTool) && (
-        <pre className="agent-tool-output">{inputStr}</pre>
+        <pre
+          style={{
+            margin: 0,
+            padding: "8px 10px",
+            color: "var(--text-muted)",
+            fontSize: "calc(12px + var(--chat-font-size-offset, 0px))",
+            lineHeight: 1.5,
+            overflow: "auto",
+            background: "var(--bg-subtle)",
+            borderTop: isError ? "1px solid var(--state-danger-border)" : "1px solid var(--state-success-border)",
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-all",
+          }}
+        >
+          {inputStr}
+        </pre>
       )}
 
       {/* ── Paired result — only shown when expanded ── */}

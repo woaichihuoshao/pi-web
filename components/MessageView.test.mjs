@@ -11,7 +11,6 @@ const { renderToStaticMarkup } = await jiti.import("react-dom/server");
 const {
   MessageView,
   ThinkingBlock,
-  TurnProcessGroup,
   getModelDisplayName,
   getTokenEstimateText,
   getToolCallInputText,
@@ -62,10 +61,9 @@ test("previews the first thinking line and reveals the full text with the saved 
         }),
       ));
       assert.match(html, new RegExp(`aria-expanded="${expanded}"`));
-      // 标题行始终显示首行预览；展开时正文另在详情区（因此可能同时出现）
-      assert.match(html, /class="agent-action-title">[^<]*Independent reasoning/);
+      assert.equal((html.match(/>[^<]*Independent reasoning[^<]*</g) ?? []).length, 1);
       assert.equal(html.includes("Detailed second line."), expanded);
-      assert.match(html, /aria-label="Reasoning: /);
+      assert.match(html, /aria-label="Thinking: /);
       assert.match(html, /3s/);
     }
   } finally {
@@ -165,10 +163,7 @@ test("renders subagents as standard tool calls with only an extra session button
     onOpenSession() {},
   });
 
-  assert.match(html, /class="agent-action(?=[ "])/);
-  assert.match(html, /class="agent-action-head"/);
-  assert.match(html, /class="agent-action-head"/);
-  assert.match(html, /stroke="var\(--state-success\)"/);
+  assert.match(html, /border:1px solid var\(--state-success-border\)/);
   assert.match(html, />Agent</);
   assert.match(html, />Explore</);
   assert.match(html, /aria-label="Open sub-agent session"/);
@@ -234,48 +229,6 @@ test("marks persisted assistant messages with their source entry", () => {
 
   assert.match(html, /data-message-role="assistant"/);
   assert.match(html, /data-entry-id="assistant-entry"/);
-});
-
-test("aggregates a whole user turn into one process group with one model label and one usage row", () => {
-  const readBlock = { type: "toolCall", toolCallId: "call-read-1", toolName: "read", input: { path: "/tmp/a.ts" } };
-  const bashBlock = { type: "toolCall", toolCallId: "call-bash-1", toolName: "bash", input: { command: "ls" } };
-  const usage = (input, output, cacheRead) => ({
-    input,
-    output,
-    cacheRead,
-    cacheWrite: 0,
-    cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, total: 0 },
-  });
-  const items = [
-    {
-      kind: "blocks",
-      key: "process-1",
-      entryId: "entry-1",
-      message: { role: "assistant", provider: "anthropic", model: "claude-test", content: [readBlock], usage: usage(100, 200, 1500) },
-      blockItems: [{ block: readBlock, originalIndex: 0 }],
-    },
-    {
-      kind: "blocks",
-      key: "process-2",
-      entryId: "entry-2",
-      message: { role: "assistant", provider: "anthropic", model: "claude-test", content: [bashBlock], usage: usage(20, 30, 500) },
-      blockItems: [{ block: bashBlock, originalIndex: 0 }],
-    },
-  ];
-
-  const html = renderToStaticMarkup(
-    React.createElement(I18nProvider, null, React.createElement(TurnProcessGroup, { items })),
-  );
-
-  // 模型名一轮只显示一次；操作字样也只有一个组头
-  assert.equal((html.match(/anthropic\/claude-test/g) ?? []).length, 1);
-  assert.equal((html.match(/trace-group-toggle/g) ?? []).length, 1);
-  assert.equal((html.match(/trace-group-hint">/g) ?? []).length, 1);
-  assert.match(html, /Ran 1 commands · Read 1 files/);
-  // token 统计聚合到展开区底部的一行，单个动作不再各带一行
-  assert.equal((html.match(/cached/g) ?? []).length, 1);
-  assert.match(html, /trace-group-usage">120 in · 230 out · 2k cached</);
-  assert.doesNotMatch(html, /cache R/);
 });
 
 test("renders a complete SDK skill expansion as a compact command", () => {
