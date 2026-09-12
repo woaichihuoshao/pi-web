@@ -201,6 +201,60 @@ html[data-theme="deepseek-light"],
   animation: deepseek-thinking-shimmer 2.4s linear infinite;
 }
 
+/* 对话正文排版按官网 markdown token 的比例
+   （--dsw-font-markdown-*：base 16/28 = 1em/1.75、h1 700 24/34、h2 22/32、
+   h3 20/30、h4 600 16/28、inline code 14/22、code block 13/22、
+   标题间距 h1-h3 32/16、其余 16/16）。用 em 表示，跟字号设置互不干扰。 */
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body {
+  line-height: 1.75;
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body p {
+  margin: 0 0 1em;
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body h1,
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body h2,
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body h3 {
+  margin: 2em 0 1em;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body h4,
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body h5,
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body h6 {
+  margin: 1em 0;
+  font-size: 1em;
+  font-weight: 600;
+  line-height: 1.75;
+  color: var(--text);
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body h1 { font-size: 1.5em; }
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body h2 { font-size: 1.375em; }
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body h3 { font-size: 1.25em; }
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body ul,
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body ol {
+  margin: 1em 0;
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body li {
+  margin: 0.125em 0;
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body .markdown-inline-code {
+  font-size: 0.875em;
+  line-height: 1.57;
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body .markdown-code-block {
+  font-size: 0.8125em;
+  line-height: 1.7;
+}
+
 /* WebKit reports dvh/innerHeight without the status-bar strip for installed
    home-screen apps even though the layout still starts at the screen's top.
    In standalone mode there is no browser toolbar to make vh unstable, and vh
