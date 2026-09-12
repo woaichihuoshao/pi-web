@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { FitAddon } from "@xterm/addon-fit";
 import { Terminal } from "@xterm/xterm";
 import { useI18n } from "@/hooks/useI18n";
+import { terminalFontFamily } from "@/lib/terminal-font";
 import { createTerminalWriter, terminalRequest } from "@/lib/terminal-client";
 import type { TerminalEvent } from "@/lib/terminal-manager";
 import type { TerminalTab } from "./terminal-tab-state";
@@ -45,7 +46,7 @@ export function TerminalPanel({ tab, active, onRestart, onClosed, onCloseError }
 
     const terminal = new Terminal({
       cursorBlink: true,
-      fontFamily: getComputedStyle(container).getPropertyValue("--font-mono").trim() || "monospace",
+      fontFamily: terminalFontFamily(getComputedStyle(container).getPropertyValue("--font-mono").trim()),
       fontSize: 13,
       lineHeight: 1.25,
       scrollback: 8000,
