@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState, useRef, useEffect, useMemo , type ReactNode } from "react";
+import { memo, useState, useRef, useEffect, useLayoutEffect, useMemo , type ReactNode } from "react";
 import { MarkdownBody } from "./MarkdownBody";
 import { ImagePreview } from "./ImagePreview";
 import { useTheme } from "@/hooks/useTheme";
@@ -197,6 +197,8 @@ interface Props {
   onNavigate?: (entryId: string) => Promise<boolean>;
   onEditContent?: (message: UserMessage) => void;
   showTimestamp?: boolean;
+  /** 同一轮只显示一次模型名：过程组已负责显示时，正文消息传 false。 */
+  showModelLabel?: boolean;
   prevTimestamp?: number;
   sessionId?: string;
   /**
@@ -273,12 +275,12 @@ function haveSameRelevantToolResults(
   return true;
 }
 
-export const MessageView = memo(function MessageView({ message, isStreaming, toolResults, modelNames, cwd, onOpenFile, onOpenSession, entryId, searchBlock, onFork, forking, onNavigate, onEditContent, showTimestamp, prevTimestamp, sessionId, writtenFiles }: Props) {
+export const MessageView = memo(function MessageView({ message, isStreaming, toolResults, modelNames, cwd, onOpenFile, onOpenSession, entryId, searchBlock, onFork, forking, onNavigate, onEditContent, showTimestamp, showModelLabel, prevTimestamp, sessionId, writtenFiles }: Props) {
   if (message.role === "user") {
     return <UserMessageView message={message as UserMessage} cwd={cwd} onOpenFile={onOpenFile} entryId={entryId} onFork={onFork} forking={forking} onNavigate={onNavigate} onEditContent={onEditContent} />;
   }
   if (message.role === "assistant") {
-    return <AssistantMessageView message={message as AssistantMessage} isStreaming={isStreaming} toolResults={toolResults} modelNames={modelNames} cwd={cwd} onOpenFile={onOpenFile} onOpenSession={onOpenSession} showTimestamp={showTimestamp} prevTimestamp={prevTimestamp} sessionId={sessionId} entryId={entryId} searchBlock={searchBlock} writtenFiles={writtenFiles} />;
+    return <AssistantMessageView message={message as AssistantMessage} isStreaming={isStreaming} toolResults={toolResults} modelNames={modelNames} cwd={cwd} onOpenFile={onOpenFile} onOpenSession={onOpenSession} showTimestamp={showTimestamp} showModelLabel={showModelLabel} prevTimestamp={prevTimestamp} sessionId={sessionId} entryId={entryId} searchBlock={searchBlock} writtenFiles={writtenFiles} />;
   }
   if (message.role === "toolResult") {
     // Rendered inline under its toolCall — skip standalone rendering if paired
@@ -309,6 +311,7 @@ export const MessageView = memo(function MessageView({ message, isStreaming, too
     && prev.onNavigate === next.onNavigate
     && prev.onEditContent === next.onEditContent
     && prev.showTimestamp === next.showTimestamp
+    && prev.showModelLabel === next.showModelLabel
     && prev.prevTimestamp === next.prevTimestamp
     && prev.writtenFiles === next.writtenFiles
     && prev.sessionId === next.sessionId;
@@ -606,6 +609,7 @@ function AssistantMessageView({
   onOpenFile,
   onOpenSession,
   showTimestamp,
+  showModelLabel,
   prevTimestamp,
   sessionId,
   entryId,
@@ -620,6 +624,7 @@ function AssistantMessageView({
   onOpenFile?: (filePath: string) => void;
   onOpenSession?: (sessionId: string) => void;
   showTimestamp?: boolean;
+  showModelLabel?: boolean;
   prevTimestamp?: number;
   sessionId?: string;
   entryId?: string;
@@ -628,6 +633,10 @@ function AssistantMessageView({
 }) {
   const { t } = useI18n();
   const time = showTimestamp ? formatTime(message.timestamp) : null;
+  // 一轮只显示一次模型名：过程组已经显示过时，这里不再重复。
+  const modelLabel = showModelLabel === false || !message.provider
+    ? null
+    : getModelDisplayName(message.provider, message.model, modelNames);
   const blockItems = useMemo(() => (message.content ?? [])
     .map((block, originalIndex) => ({ block, originalIndex }))
     .filter(({ block }) => !isEmptyThinkingBlock(block, { isStreaming })), [message.content, isStreaming]);
@@ -777,7 +786,7 @@ function AssistantMessageView({
       onMouseLeave={() => setHovered(false)}
     >
       {/* Model label */}
-      <div
+      {(modelLabel || isStreaming) && <div
         style={{
           fontSize: "var(--font-xs)",
           color: "var(--text-dim)",
@@ -787,8 +796,8 @@ function AssistantMessageView({
           gap: 6,
         }}
       >
-        {message.provider && (
-          <span>{getModelDisplayName(message.provider, message.model, modelNames)}</span>
+        {modelLabel && (
+          <span>{modelLabel}</span>
         )}
         {isStreaming && (() => {
           const est = Math.round(estimatedTokens);
@@ -816,7 +825,7 @@ function AssistantMessageView({
             </>
           );
         })()}
-      </div>
+      </div>}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         {segments.map((segment) => {
@@ -1051,6 +1060,46 @@ const TRACE_EDIT_TOOLS = new Set(["edit", "write", "multiedit", "patch", "apply_
 const TRACE_COMMAND_TOOLS = new Set(["bash", "shell", "process", "terminal"]);
 const TRACE_READ_TOOLS = new Set(["read", "grep", "find", "glob", "ls", "list", "search"]);
 
+interface ProcessSummaryCounts {
+  thinkingSeconds: number;
+  edits: number;
+  commands: number;
+  reads: number;
+  other: number;
+}
+
+function countProcessSummary(
+  items: Array<{ block: AssistantContentBlock; thinkingSeconds?: number }>,
+): ProcessSummaryCounts {
+  const counts: ProcessSummaryCounts = { thinkingSeconds: 0, edits: 0, commands: 0, reads: 0, other: 0 };
+  for (const { block, thinkingSeconds = 0 } of items) {
+    if (block.type === "thinking") {
+      counts.thinkingSeconds += thinkingSeconds;
+      continue;
+    }
+    if (block.type !== "toolCall") continue;
+    const name = block.toolName;
+    if (TRACE_EDIT_TOOLS.has(name)) counts.edits += 1;
+    else if (TRACE_COMMAND_TOOLS.has(name)) counts.commands += 1;
+    else if (TRACE_READ_TOOLS.has(name)) counts.reads += 1;
+    else counts.other += 1;
+  }
+  return counts;
+}
+
+function formatProcessSummary(
+  counts: ProcessSummaryCounts,
+  t: (key: string, params?: TranslationParams) => string,
+): string {
+  const parts: string[] = [];
+  if (counts.thinkingSeconds > 0) parts.push(t("trace.thoughtForSeconds", { seconds: counts.thinkingSeconds }));
+  if (counts.edits > 0) parts.push(t("trace.editedFiles", { count: counts.edits }));
+  if (counts.commands > 0) parts.push(t("trace.ranCommands", { count: counts.commands }));
+  if (counts.reads > 0) parts.push(t("trace.readFiles", { count: counts.reads }));
+  if (counts.other > 0) parts.push(t("trace.actions", { count: counts.other }));
+  return parts.join(" · ");
+}
+
 /** 三层架构第二层：把一段连续的过程块折叠成一行摘要（正文仍是第一层） */
 function summarizeProcess(
   items: Array<{ block: AssistantContentBlock; originalIndex: number }>,
@@ -1061,30 +1110,12 @@ function summarizeProcess(
     thinkingDurationFromFile?: number;
   },
 ): string {
-  let thinkingSeconds = 0;
-  let edits = 0;
-  let commands = 0;
-  let reads = 0;
-  let other = 0;
-  for (const { block, originalIndex } of items) {
-    if (block.type === "thinking") {
-      thinkingSeconds += ctx.streamingDurations.get(originalIndex) ?? ctx.thinkingDurationFromFile ?? 0;
-      continue;
-    }
-    if (block.type !== "toolCall") continue;
-    const name = block.toolName;
-    if (TRACE_EDIT_TOOLS.has(name)) edits += 1;
-    else if (TRACE_COMMAND_TOOLS.has(name)) commands += 1;
-    else if (TRACE_READ_TOOLS.has(name)) reads += 1;
-    else other += 1;
-  }
-  const parts: string[] = [];
-  if (thinkingSeconds > 0) parts.push(ctx.t("trace.thoughtForSeconds", { seconds: thinkingSeconds }));
-  if (edits > 0) parts.push(ctx.t("trace.editedFiles", { count: edits }));
-  if (commands > 0) parts.push(ctx.t("trace.ranCommands", { count: commands }));
-  if (reads > 0) parts.push(ctx.t("trace.readFiles", { count: reads }));
-  if (other > 0) parts.push(ctx.t("trace.actions", { count: other }));
-  return parts.join(" · ");
+  return formatProcessSummary(countProcessSummary(items.map(({ block, originalIndex }) => ({
+    block,
+    thinkingSeconds: block.type === "thinking"
+      ? ctx.streamingDurations.get(originalIndex) ?? ctx.thinkingDurationFromFile ?? 0
+      : 0,
+  }))), ctx.t);
 }
 
 function ProcessGroup({ summary, children }: { summary: string; children: ReactNode }) {
@@ -1109,6 +1140,190 @@ function ProcessGroup({ summary, children }: { summary: string; children: ReactN
       </button>
       {/* 保持渲染（保持既有测试与折叠状态下的 DOM 结构），仅用 CSS 隐藏 */}
       <div className="trace-group-body" style={{ display: open ? "flex" : "none" }}>{children}</div>
+    </div>
+  );
+}
+
+/** 一轮用户消息中的一个过程成员：assistant 块列表，或无法聚合的自定义消息节点。 */
+export type TurnProcessItem =
+  | {
+      kind: "blocks";
+      key: string;
+      message: AssistantMessage;
+      entryId?: string;
+      /** 参与渲染的块（保留原始 content 下标，供 thinking 按需加载使用） */
+      blockItems: Array<{ block: AssistantContentBlock; originalIndex: number }>;
+      /** 上一条消息的时间戳，用于从消息时间戳差推导思考时长 */
+      prevTimestamp?: number;
+      searchBlock?: AssistantContentBlock;
+    }
+  | { kind: "node"; key: string; node: ReactNode };
+
+/** thinking 块时长：文件时间戳差（与 AssistantMessageView 一致）。 */
+function getThinkingSeconds(message: AssistantMessage, prevTimestamp?: number): number {
+  if (!message.timestamp || !prevTimestamp) return 0;
+  const secs = Math.round((message.timestamp - prevTimestamp) / 1000);
+  return secs > 0 ? secs : 0;
+}
+
+function formatCompactCount(value: number): string {
+  return value >= 1000 ? `${Math.round(value / 1000)}k` : String(value);
+}
+
+/** 过程组底部的聚合 token 行（只在展开时出现）。 */
+function formatTurnUsage(usage: { input: number; output: number; cacheRead: number; cacheWrite: number; cost: number }): string {
+  const parts: string[] = [];
+  if (usage.input) parts.push(`${usage.input.toLocaleString()} in`);
+  if (usage.output) parts.push(`${usage.output.toLocaleString()} out`);
+  if (usage.cacheRead) parts.push(`${formatCompactCount(usage.cacheRead)} cached`);
+  if (usage.cacheWrite) parts.push(`${formatCompactCount(usage.cacheWrite)} cache W`);
+  if (usage.cost) parts.push(`$${usage.cost.toFixed(4)}`);
+  return parts.join(" · ");
+}
+
+type TurnProcessBlocksItem = Extract<TurnProcessItem, { kind: "blocks" }>;
+
+/** 单个消息的动作行：跨渲染保持稳定，避免流式期间重建全部已完成动作行。 */
+const TurnProcessRows = memo(function TurnProcessRows({ item, toolResults, cwd, onOpenFile, onOpenSession, sessionId }: {
+  item: TurnProcessBlocksItem;
+  toolResults?: Map<string, ToolResultMessage>;
+  cwd?: string;
+  onOpenFile?: (filePath: string) => void;
+  onOpenSession?: (sessionId: string) => void;
+  sessionId?: string;
+}) {
+  const durations = new Map<string, number>();
+  if (toolResults && item.message.timestamp) {
+    for (const { block } of item.blockItems) {
+      if (block.type !== "toolCall") continue;
+      const result = toolResults.get(block.toolCallId);
+      if (!result?.timestamp) continue;
+      const secs = Math.round((result.timestamp - item.message.timestamp) / 1000);
+      if (secs > 0) durations.set(block.toolCallId, secs);
+    }
+  }
+  const thinkingSeconds = getThinkingSeconds(item.message, item.prevTimestamp);
+  return item.blockItems.map(({ block, originalIndex }) => (
+    <BlockView
+      key={`${item.key}-${originalIndex}`}
+      block={block}
+      searchTarget={block === item.searchBlock}
+      toolResults={toolResults}
+      streamingDuration={block.type === "thinking" && thinkingSeconds > 0 ? thinkingSeconds : undefined}
+      toolCallDurations={durations}
+      cwd={cwd}
+      onOpenFile={onOpenFile}
+      onOpenSession={onOpenSession}
+      sessionId={sessionId}
+      entryId={item.entryId}
+      blockIndex={originalIndex}
+    />
+  ));
+}, (prev, next) => {
+  if (prev.item === next.item) return true;
+  if (prev.item.message !== next.item.message) return false;
+  if (prev.item.prevTimestamp !== next.item.prevTimestamp) return false;
+  if (prev.item.searchBlock !== next.item.searchBlock) return false;
+  if (prev.cwd !== next.cwd || prev.onOpenFile !== next.onOpenFile) return false;
+  if (prev.onOpenSession !== next.onOpenSession || prev.sessionId !== next.sessionId) return false;
+  const a = prev.item.blockItems;
+  const b = next.item.blockItems;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i].block !== b[i].block || a[i].originalIndex !== b[i].originalIndex) return false;
+  }
+  return haveSameRelevantToolResults(prev.item.message, prev.toolResults, next.toolResults);
+});
+
+/**
+ * 三层架构第二层（回合级）：一轮用户消息的全部过程事件合并成一个 Process Group。
+ * 模型名只显示一次，工具/思考行连续排列，token 统计聚合到展开区底部。
+ */
+export function TurnProcessGroup({
+  items,
+  toolResults,
+  modelNames,
+  cwd,
+  onOpenFile,
+  onOpenSession,
+  sessionId,
+  defaultExpanded = false,
+  reveal = false,
+}: {
+  items: TurnProcessItem[];
+  toolResults?: Map<string, ToolResultMessage>;
+  modelNames?: Record<string, string>;
+  cwd?: string;
+  onOpenFile?: (filePath: string) => void;
+  onOpenSession?: (sessionId: string) => void;
+  sessionId?: string;
+  defaultExpanded?: boolean;
+  reveal?: boolean;
+}) {
+  const { t } = useI18n();
+  const [open, setOpen] = useState(defaultExpanded);
+  useLayoutEffect(() => {
+    if (reveal) setOpen(true);
+  }, [reveal]);
+
+  const summary = formatProcessSummary(countProcessSummary(items.flatMap((item) => item.kind !== "blocks"
+    ? []
+    : item.blockItems.map(({ block }) => ({
+      block,
+      thinkingSeconds: block.type === "thinking" ? getThinkingSeconds(item.message, item.prevTimestamp) : 0,
+    })))), t);
+
+  let modelLabel: string | null = null;
+  const usageTotal = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, cost: 0 };
+  for (const item of items) {
+    if (item.kind !== "blocks") continue;
+    if (modelLabel === null && item.message.provider) {
+      modelLabel = getModelDisplayName(item.message.provider, item.message.model, modelNames);
+    }
+    const usage = item.message.usage;
+    if (!usage) continue;
+    usageTotal.input += usage.input ?? 0;
+    usageTotal.output += usage.output ?? 0;
+    usageTotal.cacheRead += usage.cacheRead ?? 0;
+    usageTotal.cacheWrite += usage.cacheWrite ?? 0;
+    usageTotal.cost += usage.cost?.total ?? 0;
+  }
+  const usageText = formatTurnUsage(usageTotal);
+
+  return (
+    <div style={{ marginBottom: 20 }}>
+      {modelLabel && (
+        <div style={{ fontSize: "var(--font-xs)", color: "var(--text-dim)", marginBottom: 10 }}>{modelLabel}</div>
+      )}
+      {summary.length > 0 && (
+        <button
+          type="button"
+          className="trace-group-toggle"
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
+          title={open ? t("trace.collapse") : t("trace.expand")}
+        >
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="var(--text-dim)" strokeWidth="1.5" strokeLinejoin="round" style={{ flexShrink: 0 }} aria-hidden="true">
+            <rect x="2.9" y="2.9" width="6.2" height="6.2" rx="1" transform="rotate(45 6 6)" />
+          </svg>
+          <span className="trace-group-summary">{summary}</span>
+          <span className="trace-group-hint">{open ? t("trace.collapse") : t("trace.expand")}</span>
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="var(--text-dim)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.15s" }} aria-hidden="true">
+            <polyline points="2 3.5 5 6.5 8 3.5" />
+          </svg>
+        </button>
+      )}
+      {/* 保持渲染（保持既有测试与折叠状态下的 DOM 结构），仅用 CSS 隐藏 */}
+      <div className="trace-group-body" style={{ display: summary.length === 0 || open ? "flex" : "none" }}>
+        {items.map((item) => (
+          <div key={item.key}>
+            {item.kind === "node"
+              ? item.node
+              : <TurnProcessRows item={item} toolResults={toolResults} cwd={cwd} onOpenFile={onOpenFile} onOpenSession={onOpenSession} sessionId={sessionId} />}
+          </div>
+        ))}
+        {usageText && <div className="trace-group-usage">{usageText}</div>}
+      </div>
     </div>
   );
 }
