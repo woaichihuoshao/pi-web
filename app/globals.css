@@ -38,6 +38,17 @@
   --tool-bg: #f9fafb;
   --bg-subtle: rgba(0,0,0,0.03);
   /* 组件结构 token：默认 = pi-web 现有观感，DeepSeek 主题按官网真值覆盖 */
+  --table-wrap-border: 1px solid var(--border);
+  --table-wrap-radius: 7px;
+  --table-row-border: var(--border);
+  --table-head-border: var(--border);
+  --table-head-bg: var(--bg-panel);
+  --table-head-weight: 650;
+  --table-cell-padding: 6px 10px;
+  --table-zebra: var(--bg-subtle);
+  --table-collapse: separate;
+  --table-font-size: calc(13px + var(--chat-font-size-offset, 0px));
+  --table-last-row-border: 0;
   --ui-radius-btn: 5px;
   --ui-radius-input: 8px;
   --ui-radius-menu: 8px;
@@ -182,6 +193,18 @@ html[data-theme="deepseek"],
   --ui-bubble-padding: 10px 16px;
   --ui-menu-padding: 4px;
   --ui-menu-item-height: 24px;
+  /* 官网表格：无外框/无竖线/无表头底色/无斑马纹；表头行线 l3、数据行线 l2、首列左对齐正文 */
+  --table-wrap-border: none;
+  --table-wrap-radius: 0;
+  --table-row-border: rgba(255,255,255,0.12);
+  --table-head-border: rgba(255,255,255,0.16);
+  --table-head-bg: transparent;
+  --table-head-weight: 500;
+  --table-cell-padding: 10px 16px;
+  --table-zebra: transparent;
+  --table-collapse: collapse;
+  --table-font-size: 0.9375em;
+  --table-last-row-border: 1px solid var(--table-row-border);
   /* 官网 state token：success green-500、error red-400、warn amber-500/600 */
   --state-success: #22c55e;
   --state-success-soft: rgba(34,197,94,0.10);
@@ -231,6 +254,17 @@ html[data-theme="deepseek-light"],
   --ui-bubble-padding: 10px 16px;
   --ui-menu-padding: 4px;
   --ui-menu-item-height: 24px;
+  --table-wrap-border: none;
+  --table-wrap-radius: 0;
+  --table-row-border: rgba(0,0,0,0.10);
+  --table-head-border: rgba(0,0,0,0.12);
+  --table-head-bg: transparent;
+  --table-head-weight: 500;
+  --table-cell-padding: 10px 16px;
+  --table-zebra: transparent;
+  --table-collapse: collapse;
+  --table-font-size: 0.9375em;
+  --table-last-row-border: 1px solid var(--table-row-border);
   --state-success: #22c55e;
   --state-success-soft: rgba(34,197,94,0.08);
   --state-success-border: rgba(34,197,94,0.30);
@@ -1034,30 +1068,31 @@ pre, code {
   margin: 8px 0;
   overflow-x: auto;
   overflow-y: hidden;
-  border: 1px solid var(--border);
-  border-radius: 7px;
+  border: var(--table-wrap-border);
+  border-radius: var(--table-wrap-radius);
 }
 .markdown-body table {
-  border-collapse: separate;
+  border-collapse: var(--table-collapse);
   border-spacing: 0;
   min-width: 100%;
-  font-size: calc(13px + var(--chat-font-size-offset, 0px));
+  font-size: var(--table-font-size);
 }
 .markdown-table-wrap > table { width: max-content; }
 .markdown-body th, .markdown-body td {
   border: 0;
-  border-bottom: 1px solid var(--border);
-  padding: 6px 10px;
+  border-bottom: 1px solid var(--table-row-border);
+  padding: var(--table-cell-padding);
   text-align: left;
   vertical-align: top;
 }
-.markdown-body tr:last-child td { border-bottom: 0; }
+.markdown-body tr:last-child td { border-bottom: var(--table-last-row-border); }
 .markdown-body th {
-  background: var(--bg-panel);
+  background: var(--table-head-bg);
+  border-bottom-color: var(--table-head-border);
   color: color-mix(in srgb, var(--text) 88%, var(--text-muted));
-  font-weight: 650;
+  font-weight: var(--table-head-weight);
 }
-.markdown-body tbody tr:nth-child(even) td { background: var(--bg-subtle); }
+.markdown-body tbody tr:nth-child(even) td { background: var(--table-zebra); }
 .markdown-body hr {
   border: none;
   height: 1px;
@@ -2017,4 +2052,19 @@ span.token.table {
   width: 16px;
   height: 16px;
   border-radius: 6px;
+}
+
+/* 官网表格：首列与正文左对齐、末列右不缩进，表内代码 13px */
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body th:first-child,
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body td:first-child {
+  padding-left: 0;
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body th:last-child,
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body td:last-child {
+  padding-right: 0;
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body table code {
+  font-size: 0.867em;
 }
