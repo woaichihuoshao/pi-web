@@ -67,5 +67,6 @@ test("renders the processes widget as a readable list in English", () => {
   assert.match(html, /old-job/);
   assert.match(html, /terminated/);
   assert.match(html, /4 done/);
+  assert.match(html, /flex-wrap:wrap/);       // 横向排列，手机上也只占一行左右的距离
   assert.doesNotMatch(html, /\[36m|\[0m|ps:/); // ANSI 与 ps: 前缀不残留
 });

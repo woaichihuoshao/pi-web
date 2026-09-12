@@ -116,3 +116,17 @@ test("renders widgets and status text in one footer", () => {
   assert.match(html, /usage/);
   assert.match(html, /connected/);
 });
+
+test("status pills and widget triggers share one set of metrics", async () => {
+  const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
+  const rule = (selector) => css.match(new RegExp(`\\${selector.slice(0, 1)}${selector.slice(1)}\\s*\\{([^}]*)\\}`))?.[1] ?? "";
+
+  const pill = rule(".extension-status-pill");
+  const trigger = rule(".extension-widget-trigger");
+  assert.match(pill, /height:\s*24px/);
+  assert.match(trigger, /height:\s*24px/);
+  assert.match(pill, /padding:\s*0 10px/);
+  assert.match(trigger, /padding:\s*0 10px/);
+  assert.match(pill, /border-radius:\s*999px/);
+  assert.match(trigger, /border-radius:\s*999px/);
+});

@@ -33,7 +33,7 @@ const STATE_WORDS: Record<ProcessState, string> = {
  */
 export function ProcessWidgetContent({ summary }: { summary: ProcessStatusSummary }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 1, padding: "2px 0" }}>
+    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: "2px 14px", padding: "2px 0" }}>
       {summary.entries.map((entry, index) => (
         <div
           key={`${entry.state}-${entry.name}-${index}`}

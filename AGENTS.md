@@ -17,6 +17,7 @@ Lint: `npm run lint`
 - Restart only after the failure reproduces from a fresh page and the server-side checks also fail. Stop the exact dev process gracefully, move `.next` into a `mktemp -d` backup, and restart with the standard `npm run dev` command.
 - Do not use `next dev --webpack` as a fallback. This repository's development graph can fail on `undici` imports such as `node:console`; development is expected to use Turbopack.
 - Next.js may append a generated `BEGIN:nextjs-agent-rules` block to `AGENTS.md` when `next dev` starts. Treat that as generated tooling output, verify it with `git status`, and do not include it in an unrelated feature commit.
+- Edits to `app/globals.css` sometimes never reach the running dev server: the served CSS chunk keeps the old mtime while the DOM already shows the new JSX. Restart `npm run dev` before concluding that a style change did not apply — querying `getComputedStyle` in a browser session is the quickest way to tell.
 
 ---
 

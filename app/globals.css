@@ -515,7 +515,7 @@ html.dark .web-login-error {
   flex: 0 0 auto;
   align-items: center;
   width: auto;
-  height: 26px;
+  height: 24px;
   gap: 5px;
   padding: 0 10px;
   overflow: hidden;
@@ -655,16 +655,19 @@ button.extension-widget-trigger:focus-visible {
 }
 
 /* One status per pill: extensions color their own text, so pills keep the
-   colors from bleeding into each other. */
+   colors from bleeding into each other. Metrics match .extension-widget-trigger
+   exactly — both sit in the same footer row. */
 .extension-status-pill {
   display: inline-flex;
   max-width: 60ch;
+  height: 24px;
   align-items: center;
-  padding: 2px 8px;
+  padding: 0 10px;
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
   border-radius: 999px;
   background: var(--bg-panel);
+  line-height: 1;
   text-overflow: ellipsis;
   white-space: pre;
 }
