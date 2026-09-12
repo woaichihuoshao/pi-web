@@ -2143,3 +2143,27 @@ span.token.table {
 :is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body blockquote > p:first-child {
   margin-top: 0;
 }
+
+/* 代码块：没有语言名时头部不占高度（官网 .md-code-block-banner-lite），
+   复制按钮改为悬停时在右上角淡入 */
+.markdown-code-header--lite {
+  padding: 0;
+  background: none;
+  border-bottom: none;
+  height: 0;
+  overflow: visible;
+}
+
+.markdown-code-block .markdown-code-actions {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.markdown-code-block:hover .markdown-code-actions,
+.markdown-code-block:focus-within .markdown-code-actions {
+  opacity: 1;
+}

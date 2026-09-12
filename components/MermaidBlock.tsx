@@ -278,10 +278,14 @@ export const CodeBlock = memo(function CodeBlock({ code, lang, headerAction, isS
     });
   };
 
+  const hasLang = Boolean(lang) && lang !== "text";
+
   return (
     <div className="markdown-code-block">
-      <div className="markdown-code-header">
-        <span className="markdown-code-lang">{lang || "text"}</span>
+      {/* 没有语言名（或纯文本）时不显示头部，避免多出一条"卡片头"；
+          复制按钮改为右上角悬停浮现（官网 banner-lite 的思路） */}
+      <div className={hasLang ? "markdown-code-header" : "markdown-code-header markdown-code-header--lite"}>
+        {hasLang && <span className="markdown-code-lang">{lang}</span>}
         <div className="markdown-code-actions">
           {headerAction}
           <button
