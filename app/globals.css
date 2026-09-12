@@ -2325,24 +2325,40 @@ span.token.table {
   caret-color: var(--accent);
 }
 
-/* 输入框自绘占位文字（空态垫了零宽空格，原生 placeholder 不会显示）。
-   与 textarea 用同一套字号/行高，位置对齐其默认 2px 内边距。 */
-.chat-input-placeholder {
-  position: absolute;
-  /* 与 textarea 同一外壳定位，即输入框内容起点 */
-  top: 0;
-  left: 0;
-  right: 0;
-  pointer-events: none;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  color: color-mix(in srgb, var(--text) 50%, transparent);
-  font-size: var(--chat-content-font-size, 14px);
-  line-height: 1.6;
+/* 空态自绘光标：Chrome 在为空时只按字体高度画光标（比有字时矮），
+   故空且聚焦时隐藏原生光标，画一条与 line-height 等高的自绘竖线。 */
+@keyframes chat-fake-caret-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
 }
 
-:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .chat-input-placeholder {
+.chat-input-fake-caret {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  border-radius: 1px;
+  background: var(--accent);
+  pointer-events: none;
+  animation: chat-fake-caret-blink 1s step-end infinite;
+}
+
+.chat-input-shell:has(.chat-input-textarea:focus:placeholder-shown) .chat-input-fake-caret {
+  display: block;
+}
+
+.chat-input-shell:has(.chat-input-textarea:focus:placeholder-shown) .chat-input-textarea {
+  caret-color: transparent;
+}
+
+/* 自绘光标高度跟随输入框行高（DeepSeek 主题 1.4，其它主题 1.6） */
+.chat-input-fake-caret {
+  height: 1.6em;
+  font-size: var(--chat-content-font-size, 14px);
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .chat-input-fake-caret {
+  height: 1.4em;
   font-size: calc(16px + var(--chat-font-size-offset, 0px));
-  line-height: 1.4;
 }

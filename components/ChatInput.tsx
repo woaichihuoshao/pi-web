@@ -196,26 +196,6 @@ function subscribeUpwardMenuMaxHeight(
   };
 }
 
-/**
- * Chrome 行为：输入框为空时光标高度取字体本身高度，有内容后改用 CSS line-height，
- * 两种状态不一致（空态明显短一截）。因此在 DOM 里始终垫一个**零宽空格**，
- * 让空态也走"有内容"的光标逻辑；占位符改为自绘（见 chat-input-placeholder）。
- * 注意：React 状态里始终是干净文本，哨兵只存在于 DOM 中。
- */
-const CARET_SENTINEL = "\u200B";
-
-function stripCaretSentinel(text: string): string {
-  return text.includes(CARET_SENTINEL) ? text.split(CARET_SENTINEL).join("") : text;
-}
-
-function readComposerTextarea(el: HTMLTextAreaElement): { text: string; caret: number } {
-  const hadSentinel = el.value.includes(CARET_SENTINEL);
-  return {
-    text: stripCaretSentinel(el.value),
-    caret: Math.max(0, (el.selectionStart ?? 0) - (hadSentinel ? 1 : 0)),
-  };
-}
-
 const THINKING_LEVELS = ["auto", "off", "minimal", "low", "medium", "high", "xhigh", "max"] as const;
 const THINKING_LEVEL_DESC_KEYS: Record<typeof THINKING_LEVELS[number], string> = {
   auto: "chat.thinkingUseDefault", off: "chat.thinkingOff", minimal: "chat.thinkingMinimal", low: "chat.thinkingLow",
@@ -584,14 +564,6 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
   const { fontSize } = useChatAppearance();
   const isMobile = useIsMobile();
   const [value, setValue] = useState(() => (draftKey ? getDraft(draftKey)?.value ?? "" : ""));
-
-  /** 输入框占位文案（与原生 placeholder 保持同一份取值） */
-  const composerPlaceholder =
-    isStreaming && (onSteer || onFollowUp)
-      ? t("chat.steerPlaceholder")
-      : isStreaming
-        ? t("chat.agentPlaceholder")
-        : t("chat.messagePlaceholder");
   const [toolDropdownOpen, setToolDropdownOpen] = useState(false);
   const [thinkingDropdownOpen, setThinkingDropdownOpen] = useState(false);
   const [controlsMenuOpen, setControlsMenuOpen] = useState(false);
@@ -2143,27 +2115,24 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
               transition: "border-color 0.15s, background 0.15s, box-shadow 0.15s",
             } as React.CSSProperties}
           >
-          {/* textarea 的定位外壳：占位层与输入框同壳，避免受容器内边距/垂直居中影响 */}
-          <div style={{ position: "relative", minWidth: 0, display: "flex", flexDirection: "column", flex: compact ? "none" : 1 }}>
-          {/* 空态：垫了零宽空格后原生 placeholder 不会显示，故自绘一层 */}
-          {value === "" && (
-            <div className="chat-input-placeholder" aria-hidden="true">{composerPlaceholder}</div>
-          )}
+          {/* textarea 的定位外壳：空态自绘光标需要与输入框精确对齐 */}
+          <div className="chat-input-shell" style={{ position: "relative", minWidth: 0, display: "flex", flexDirection: "column", flex: compact ? "none" : 1 }}>
+          {/* Chrome 在输入框为空时光标只按字体高度绘制，比有字时矮；空态改用自绘光标 */}
+          <span className="chat-input-fake-caret" aria-hidden="true" />
           <textarea
             ref={textareaRef}
             className="chat-input-textarea"
             aria-label={compact ? t("chat.quoteQuestion") : undefined}
-            value={value === "" ? CARET_SENTINEL : value}
+            value={value}
             onChange={(e) => {
-              const { text, caret } = readComposerTextarea(e.target);
-              valueRef.current = text;
-              setValue(text);
+              valueRef.current = e.target.value;
+              setValue(e.target.value);
               setHistoryMenuOpen(false);
-              updateAtQuery(text, caret);
+              updateAtQuery(e.target.value, e.target.selectionStart);
             }}
             onSelect={(e) => {
-              const { text, caret } = readComposerTextarea(e.currentTarget);
-              updateAtQuery(text, caret);
+              const el = e.currentTarget;
+              updateAtQuery(el.value, el.selectionStart);
             }}
             onKeyDown={handleKeyDown}
             onCompositionStart={() => {
@@ -2172,12 +2141,17 @@ export const ChatInput = forwardRef<ChatInputHandle, Props>(function ChatInput({
             onCompositionEnd={(e) => {
               isComposingRef.current = false;
               lastCompositionEndAtRef.current = Date.now();
-              const { text, caret } = readComposerTextarea(e.currentTarget);
-              updateAtQuery(text, caret);
+              const el = e.currentTarget;
+              updateAtQuery(el.value, el.selectionStart);
             }}
             onInput={handleInput}
             onPaste={handlePaste}
-            placeholder={composerPlaceholder}
+            placeholder={
+              isStreaming && (onSteer || onFollowUp)
+                ? t("chat.steerPlaceholder")
+                : isStreaming ? t("chat.agentPlaceholder")
+                : t("chat.messagePlaceholder")
+            }
             rows={1}
             style={{
               flex: 1,

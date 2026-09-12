@@ -43,7 +43,9 @@ test("contains chat content and inputs within the mobile viewport", () => {
   assert.match(cssSource, /\.markdown-code-block \{[\s\S]*?min-width: 0;[\s\S]*?max-width: 100%;/);
   assert.match(chatWindowSource, /overflow-x-hidden overflow-y-auto/);
   assert.match(chatWindowSource, /maxHeight: "min\(760px, 100%\)"/);
-  assert.match(chatInputSource, /flex: compact \? "none" : 1,\s*minWidth: 0,\s*width: "100%",/);
+  // textarea 现在套了一层定位外壳（供自绘占位层对齐），flex 由外壳承担，textarea 自身仍撑满
+  assert.match(chatInputSource, /position: "relative", minWidth: 0, display: "flex", flexDirection: "column", flex: compact \? "none" : 1/);
+  assert.match(chatInputSource, /flex: 1,\s*minWidth: 0,\s*width: "100%",/);
 });
 
 test("prevents iOS focus zoom from widening the layout", () => {
