@@ -208,6 +208,7 @@ html[data-theme="deepseek"],
   /* 官网表格：无外框/无竖线/无表头底色/无斑马纹；表头行线 l3、数据行线 l2、首列左对齐正文 */
   /* 官网代码块：底 #1B1B1C、头部 #2C2C2E（无分隔线、无外框）、头部 9px 14px / 13px、
      复制按钮无边框、内容区 padding 16px */
+  --inline-code-bg: #2c2c2e;
   --code-block-bg: #1b1b1c;
   --code-block-banner-bg: #2c2c2e;
   --code-block-border: none;
@@ -280,6 +281,7 @@ html[data-theme="deepseek-light"],
   --ui-bubble-padding: 10px 16px;
   --ui-menu-padding: 4px;
   --ui-menu-item-height: 24px;
+  --inline-code-bg: #ebeef2;
   --code-block-bg: #f9fafb;
   --code-block-banner-bg: #f9fafb;
   --code-block-border: none;
@@ -1026,12 +1028,12 @@ pre, code {
 .markdown-body ol > li { list-style-type: decimal; }
 .markdown-body li > p { margin: 0; }
 .markdown-body li::marker {
-  color: color-mix(in srgb, var(--accent) 72%, var(--text-muted));
-  font-weight: 600;
+  color: var(--text-dim);
+  font-weight: 400;
 }
 .markdown-body strong {
-  color: color-mix(in srgb, var(--text) 88%, var(--accent));
-  font-weight: 700;
+  color: inherit;
+  font-weight: 650;
 }
 .markdown-body em { color: var(--text-muted); }
 .markdown-body a {
@@ -1050,13 +1052,12 @@ pre, code {
   border-radius: 6px;
 }
 .markdown-body .markdown-inline-code {
-  background: var(--bg-subtle);
-  border-radius: 5px;
+  background: var(--inline-code-bg, var(--bg-subtle));
+  border-radius: 6px;
   padding: 1px 5px;
   color: var(--text);
   font-family: var(--font-mono);
   font-size: 0.92em;
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--border) 70%, transparent);
 }
 .markdown-body .contains-task-list {
   padding-left: 0;
@@ -1098,11 +1099,11 @@ pre, code {
   transform: rotate(45deg) translateY(-1px);
 }
 .markdown-body blockquote {
-  border-left: 3px solid color-mix(in srgb, var(--border) 75%, var(--text-muted));
-  border-radius: 0 6px 6px 0;
-  margin: 6px 0;
-  padding: 6px 11px;
-  background: var(--bg-subtle);
+  border-left: 2px solid color-mix(in srgb, var(--text-dim) 80%, transparent);
+  border-radius: 0;
+  margin: 1em 0;
+  padding: 2px 0 2px 14px;
+  background: none;
   color: var(--text-muted);
 }
 .markdown-table-wrap {
@@ -2109,4 +2110,36 @@ span.token.table {
 
 :is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body table code {
   font-size: 0.867em;
+}
+
+/* 官网 markdown 细节（低装饰）：列表 18px 缩进 / 行距 6px、hr 32px 留白、
+   链接默认无下划线（hover 才出现）、代码块上下 16px 留白 */
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body ul,
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body ol {
+  padding-left: 18px;
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body li:not(:first-child) {
+  margin-top: 6px;
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body hr {
+  margin: 2em 0;
+  background: var(--border);
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body a {
+  text-decoration: none;
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body a:hover {
+  text-decoration: underline;
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body .markdown-code-block {
+  margin: 1em 0;
+}
+
+:is([data-theme="deepseek"], [data-theme="deepseek-light"]) .markdown-body blockquote > p:first-child {
+  margin-top: 0;
 }
